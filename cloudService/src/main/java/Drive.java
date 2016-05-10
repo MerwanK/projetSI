@@ -1,19 +1,23 @@
-package net.mail.ws.service;
+package net.cloudservice;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 
 @WebService(name = "Drive", targetNamespace = "http://david.bromberg.fr/")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public interface Drive {
 
   /**
-   * Authentificate
-   */
+  * Authentificate
+  */
   @WebMethod
   public void authentificate(String username, String password);
 
@@ -27,7 +31,13 @@ public interface Drive {
   * Send a file
   */
   @WebMethod
-  public void sendFile(String file);
+  public void sendFile(FileInputStream toUpload, String destination);
+
+  /**
+  * Get a file
+  */
+  @WebMethod
+  public FileOutputStream getFile(String file);
 
   /**
   * Share a file
