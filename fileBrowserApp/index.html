@@ -1,0 +1,30 @@
+<!doctype html>
+<html ng-app="client" ng-strict-di>
+    <head>
+      <title>client</title>
+      <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css">
+    </head>
+    <script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+    <script type="text/javascript">
+      var myAppModule = angular.module('MyApp', ['ui.tree'])
+    </script>
+  </head>
+  <body>
+ <div ui-tree>
+  <ol ui-tree-nodes="" ng-model="list">
+    <li ng-repeat="item in list" ui-tree-node>
+      <div ui-tree-handle>
+        {{item.title}}
+      </div>
+      <ol ui-tree-nodes="" ng-model="item.items">
+        <li ng-repeat="subItem in item.items" ui-tree-node>
+          <div ui-tree-handle>
+            {{subItem.title}}
+          </div>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</div>  
+  </body>
+
