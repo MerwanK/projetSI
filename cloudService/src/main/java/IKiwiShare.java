@@ -8,7 +8,7 @@ public interface IKiwiShare {
   * Get OAuth2 url
   * @return {"err":"ERROR"} if error else {"url":"URL"}
   */
-  public Response getAuthUrl();
+  public Response getAuthUrl(String type);
 
   /**
   * Authentificate (return a token)
@@ -16,7 +16,7 @@ public interface IKiwiShare {
   * @param error: if an error occcurs previously
   * @return {"err":"ERROR"} if error else {"token":"TOKEN"}
   */
-  public Response authentificate(String code, String error);
+  public Response authentificateDropbox(String code, String error);
 
   /**
   * Get info from a file

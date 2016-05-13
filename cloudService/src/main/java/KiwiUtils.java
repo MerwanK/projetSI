@@ -55,7 +55,6 @@ public class KiwiUtils {
   // makes a POST request to url with form parameters and returns body as a string
   public static String post(String url, Map<String,String> formParameters) throws ClientProtocolException, IOException {
     HttpPost request = new HttpPost(url);
-
     List <NameValuePair> nvps = new ArrayList <NameValuePair>();
 
     for (String key : formParameters.keySet()) {

@@ -1,0 +1,15 @@
+http://localhost:8080/kiwishare/authurl?type=dropbox
+
+Renvoie :
+{"err":"UN TRUC ICI"} si erreur ou
+{"url":"l'url a lancer"}
+
+L'url a lancer donne :
+http://localhost:8080/kiwishare/callbackDropbox?code=CODE D'AVANT
+Renvoie :
+{"err":"UN TRUC ICI"} si erreur ou
+{"token":"TOKEN"}
+
+http://localhost:8080/kiwishare/info
+http://localhost:8080/kiwishare/mkdir?path=NOMDOSSIER
+http://localhost:8080/kiwishare/rm?path=NOMFICHIER

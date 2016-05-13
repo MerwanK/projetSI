@@ -35,8 +35,7 @@ import java.text.ParseException;
 import org.json.*;
 import com.google.common.collect.ImmutableMap;
 
-@Path("/kiwidropbox")
-public class KiwiShareDropbox implements IKiwiShare {
+public class KiwiShareDropbox {//implements IKiwiShare {
 
   private String _key = null;
   private String _secret = null;
@@ -49,9 +48,6 @@ public class KiwiShareDropbox implements IKiwiShare {
     _callbackUrl = obj.getString("callback_url");
   }
 
-  @GET
-  @Path("/authurl")
-  @Override
   public Response getAuthUrl() {
     Map<String, String> jsonContent = new HashMap();
 
@@ -73,10 +69,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     return Response.status(200).entity(result.toString()).build();
   }
 
-  @GET
-  @Path("/callback")
-  @Override
-  public Response authentificate(@QueryParam("code") String code, @QueryParam("error") String error) {
+  public Response authentificate(String code, String error) {
     Map<String, String> jsonContent = new HashMap();
 
     String body = null;
@@ -91,13 +84,13 @@ public class KiwiShareDropbox implements IKiwiShare {
         .put("code", code)
         .put("client_id", _key)
         .put("client_secret", _secret)
-        .put("redirect_uri", "http://localhost:8080/kiwidropbox/callback")
+        .put("redirect_uri", _callbackUrl)
         .put("grant_type", "authorization_code").build());
 
         JSONObject obj = new JSONObject(body);
         accessToken = obj.getString("access_token");
 
-        jsonContent.put("token", obj.getString("access_token"));
+        jsonContent.put("token", accessToken);
       } catch (Exception e) {
         jsonContent.put("err", "Unable to parse json " + body);
       }
@@ -107,10 +100,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     return Response.status(200).entity(result.toString()).build();
   }
 
-  @GET
-  @Path("/files")
-  @Override
-  public Response getFileInfo(@QueryParam("path") String file, @QueryParam("token") String token) {
+  public Response getFileInfo(String file, String token) {
     //TODO try multi level path.
     String json=null;
     try {
@@ -129,12 +119,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     return Response.status(200).entity(json).build();
   }
 
-
-  @PUT
-  @Path("/put")
-  @Override
-  //TODO put content file
-  public Response sendFile(@FormParam("content") String toUpload, @QueryParam("path") String destination, @QueryParam("token") String token) {
+  public Response sendFile(String toUpload, String destination, String token) {
     String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
@@ -164,10 +149,7 @@ public class KiwiShareDropbox implements IKiwiShare {
   }
 
 
-  @GET
-  @Path("/info")
-  @Override
-  public Response getSpaceInfo(@QueryParam("token") String token) {
+  public Response getSpaceInfo(String token) {
     String json=null;
     try {
       json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(token)
@@ -180,10 +162,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     return Response.status(200).entity(json).build();
   }
 
-  @GET
-  @Path("/mkdir")
-  @Override
-  public Response mkdir(@QueryParam("path") String folder, @QueryParam("token") String token) {
+  public Response mkdir(String folder, String token) {
     //TODO better path
     String json=null;
     try {
@@ -201,10 +180,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     return Response.status(200).entity(json).build();
   }
 
-  @GET
-  @Path("/rm")
-  @Override
-  public Response removeFile(@QueryParam("path") String file, @QueryParam("token") String token) {
+  public Response removeFile(String file, String token) {
     //TODO better path
     String json=null;
     try {
@@ -222,11 +198,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     return Response.status(200).entity(json).build();
   }
 
-
-  @GET
-  @Path("/mv")
-  @Override
-  public Response moveFile(@QueryParam("from") String from, @QueryParam("to") String to, @QueryParam("token") String token) {
+  public Response moveFile(String from, String to, String token) {
     //TODO better path
     String json=null;
     try {
