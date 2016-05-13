@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 import org.apache.http.client.ClientProtocolException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileReader;
@@ -68,82 +69,59 @@ public class KiwiShareDropbox implements IKiwiShare {
   @Path("/authurl")
   @Override
   public Response getAuthUrl() {
-    String url = "https://www.dropbox.com/1/oauth2/authorize?response_type=code&" +
-    "client_id=" + _key +
-    "&redirect_uri=" + _callbackUrl;
-    return Response.status(200).entity(url).build();
+    Map<String, String> jsonContent = new HashMap();
 
+    if(_key == null)
+    {
+      jsonContent.put("err", "incorrect config (app_key)");
+    } else if(_secret == null) {
+      jsonContent.put("err", "incorrect config (app_secret)");
+    } else if(_callbackUrl == null) {
+      jsonContent.put("err", "incorrect config (callback_url)");
+    } else {
+      String url = "https://www.dropbox.com/1/oauth2/authorize?response_type=code&" +
+      "client_id=" + _key +
+      "&redirect_uri=" + _callbackUrl;
+      jsonContent.put("url", url);
+    }
+
+    JSONObject result = new JSONObject(jsonContent);
+    return Response.status(200).entity(result.toString()).build();
   }
 
   @GET
   @Path("/callback")
   @Override
   public Response authentificate(@QueryParam("code") String code, @QueryParam("error") String error) {
+    Map<String, String> jsonContent = new HashMap();
 
-    String output = "Trying to connect with : " + code + ":" + error + "\n";
-
-    if (error != null) {
-      return Response.status(200).entity(error).build();
-    }
-    String accessToken = null;
     String body = null;
-    try {
-
-      // get the access token by post to Google
-      body = post("https://api.dropboxapi.com/1/oauth2/token", ImmutableMap.<String,String>builder()
-      .put("code", code)
-      .put("client_id", _key)
-      .put("client_secret", _secret)
-      .put("redirect_uri", "http://localhost:8080/kiwidropbox/callback")
-      .put("grant_type", "authorization_code").build());
-
-      JSONObject obj = new JSONObject(body);
-
-      // google tokens expire after an hour, but since we requested offline access we can get a new token without user involvement via the refresh token
-      accessToken = obj.getString("access_token");
-    } catch (Exception e) {
-      accessToken = "Unable to parse json " + body;
+    String accessToken = null;
+    if (error != null) {
+      jsonContent.put("err", error);
     }
-    return Response.status(200).entity(accessToken).build();
+    else {
+      try {
 
-  }
+        body = KiwiUtils.post("https://api.dropboxapi.com/1/oauth2/token", ImmutableMap.<String,String>builder()
+        .put("code", code)
+        .put("client_id", _key)
+        .put("client_secret", _secret)
+        .put("redirect_uri", "http://localhost:8080/kiwidropbox/callback")
+        .put("grant_type", "authorization_code").build());
 
+        JSONObject obj = new JSONObject(body);
+        accessToken = obj.getString("access_token");
 
-  // makes a GET request to url and returns body as a string
-  public String get(String url) throws ClientProtocolException, IOException {
-    return execute(new HttpGet(url));
-  }
-
-  // makes a POST request to url with form parameters and returns body as a string
-  public String post(String url, Map<String,String> formParameters) throws ClientProtocolException, IOException {
-    HttpPost request = new HttpPost(url);
-
-    List <NameValuePair> nvps = new ArrayList <NameValuePair>();
-
-    for (String key : formParameters.keySet()) {
-      nvps.add(new BasicNameValuePair(key, formParameters.get(key)));
+        jsonContent.put("token", obj.getString("access_token"));
+      } catch (Exception e) {
+        jsonContent.put("err", "Unable to parse json " + body);
+      }
     }
 
-    request.setEntity(new UrlEncodedFormEntity(nvps));
-
-    return execute(request);
+    JSONObject result = new JSONObject(jsonContent);
+    return Response.status(200).entity(result.toString()).build();
   }
-
-  // makes request and checks response code for 200
-  private String execute(HttpRequestBase request) throws ClientProtocolException, IOException {
-    DefaultHttpClient httpClient = new DefaultHttpClient();
-    HttpResponse response = httpClient.execute(request);
-
-    HttpEntity entity = response.getEntity();
-    String body = EntityUtils.toString(entity);
-
-    if (response.getStatusLine().getStatusCode() != 200) {
-      throw new RuntimeException("Expected 200 but got " + response.getStatusLine().getStatusCode() + ", with body " + body);
-    }
-
-    return body;
-  }
-
 
   @GET
   @Path("/put")
@@ -185,7 +163,7 @@ public class KiwiShareDropbox implements IKiwiShare {
   public Response getSpaceInfo(@QueryParam("token") String token) {
     String json=null;
     try {
-      json = get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(token)
+      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(token)
       .toString());
     } catch (Exception e) {
       String url = new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(token)
@@ -226,7 +204,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     //TODO better path
     String json=null;
     try {
-      json = get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(token)
+      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(token)
       .append("&root=auto")
       .append("&path=").append(folder)
       .toString());
@@ -247,7 +225,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     //TODO better path
     String json=null;
     try {
-      json = get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(token)
+      json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(token)
       .append("&root=auto")
       .append("&path=").append(file)
       .toString());
@@ -269,7 +247,7 @@ public class KiwiShareDropbox implements IKiwiShare {
     //TODO better path
     String json=null;
     try {
-      json = post("https://api.dropboxapi.com/1/fileops/move", ImmutableMap.<String,String>builder()
+      json = KiwiUtils.post("https://api.dropboxapi.com/1/fileops/move", ImmutableMap.<String,String>builder()
       .put("root", "auto")
       .put("from_path", from)
       .put("to_path", to)
