@@ -6,10 +6,15 @@ Renvoie :
 
 L'url a lancer donne :
 http://localhost:8080/kiwishare/callbackDropbox?code=CODE D'AVANT
-Renvoie :
-{"err":"UN TRUC ICI"} si erreur ou
-{"token":"TOKEN"}
 
+Fonctionnel:
 http://localhost:8080/kiwishare/info
 http://localhost:8080/kiwishare/mkdir?path=NOMDOSSIER
 http://localhost:8080/kiwishare/rm?path=NOMFICHIER
+http://localhost:8080/kiwishare/mv?from=NOMFICHIER&to=NOMFICHIER
+
+TODO server:
+http://localhost:8080/kiwishare/files?path=NOMFICHIER
+http://localhost:8080/kiwishare/sendFile?path=NOMFICHIER
+SHARE/ENCRYPT
+GOOGLEDRIVE
