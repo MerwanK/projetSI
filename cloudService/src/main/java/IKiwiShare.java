@@ -21,12 +21,12 @@ public interface IKiwiShare {
   /**
   * Get info from a file
   */
-  public Response getFileInfo(String file, String token);
+  public Response getFileInfo(String file);
 
   /**
   * Send a file
   */
-  public Response sendFile(String toUpload, String destination, String token);
+  public Response sendFile(String toUpload, String destination);
 
   /**
   * Share a file
@@ -36,22 +36,22 @@ public interface IKiwiShare {
   /**
   * Get free space
   */
-  public Response getSpaceInfo(String token);
+  public Response getSpaceInfo();
 
   /**
   * Move a file
   * Can also be used to rename a file
   */
-  public Response moveFile(String from, String to, String token);
+  public Response moveFile(String from, String to);
 
   /**
   * Remove a file
   */
-  public Response removeFile(String file, String token);
+  public Response removeFile(String file);
 
   /**
   * Make directory
   */
-  public Response mkdir(String folder, String token);
+  public Response mkdir(String folder);
 
 }

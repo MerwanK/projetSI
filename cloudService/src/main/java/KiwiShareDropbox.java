@@ -37,15 +37,26 @@ import com.google.common.collect.ImmutableMap;
 
 public class KiwiShareDropbox {//implements IKiwiShare {
 
+  private static volatile KiwiShareDropbox _instance = null;
   private String _key = null;
   private String _secret = null;
   private String _callbackUrl = null;
+  private String _token;
 
-  public KiwiShareDropbox() {
+  private KiwiShareDropbox() {
     JSONObject obj = new JSONObject(KiwiUtils.readFile("config"));
     _key = obj.getString("app_key");
     _secret = obj.getString("app_secret");
     _callbackUrl = obj.getString("callback_url");
+  }
+
+  public static KiwiShareDropbox getInstance() {
+    if(_instance == null) {
+      synchronized (KiwiShareDropbox.class) {
+        _instance =  new KiwiShareDropbox();
+      }
+    }
+    return _instance;
   }
 
   public Response getAuthUrl() {
@@ -90,6 +101,7 @@ public class KiwiShareDropbox {//implements IKiwiShare {
         JSONObject obj = new JSONObject(body);
         accessToken = obj.getString("access_token");
 
+        _token = accessToken;
         jsonContent.put("token", accessToken);
       } catch (Exception e) {
         jsonContent.put("err", "Unable to parse json " + body);
@@ -100,11 +112,11 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     return Response.status(200).entity(result.toString()).build();
   }
 
-  public Response getFileInfo(String file, String token) {
+  public Response getFileInfo(String file) {
     //TODO try multi level path.
     String json=null;
     try {
-      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(token)      .toString();
+      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(_token)      .toString();
       HttpGet request = new HttpGet(url);
       DefaultHttpClient httpClient = new DefaultHttpClient();
       HttpResponse response = httpClient.execute(request);
@@ -112,15 +124,15 @@ public class KiwiShareDropbox {//implements IKiwiShare {
         json = h.getName() + "-" + h.getValue() + "<br>";
       }
     } catch (Exception e) {
-      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(token)
-      .toString();
-      json = "Unable to parse json " + json + "<br>token:" + token + "<br>" + url;
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json);
+      json = new JSONObject(jsonContent).toString();
     }
     return Response.status(200).entity(json).build();
   }
 
-  public Response sendFile(String toUpload, String destination, String token) {
-    String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + token;
+  public Response sendFile(String toUpload, String destination) {
+    String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
     try {
@@ -143,62 +155,60 @@ public class KiwiShareDropbox {//implements IKiwiShare {
         result.append(output);
       }
     } catch (Exception e) {
-      return Response.status(200).entity(e.getMessage()).build();
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", e.getMessage() );
+      return Response.status(200).entity(new JSONObject(jsonContent).toString()).build();
     }
     return Response.status(200).entity(result.toString()).build();
   }
 
 
-  public Response getSpaceInfo(String token) {
+  public Response getSpaceInfo() {
     String json=null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(token)
+      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(_token)
       .toString());
     } catch (Exception e) {
-      String url = new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(token)
-      .toString();
-      json = "Unable to parse json " + json + "<br>token:" + token + "<br>" + url;
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json);
+      json = new JSONObject(jsonContent).toString();
     }
     return Response.status(200).entity(json).build();
   }
 
-  public Response mkdir(String folder, String token) {
+  public Response mkdir(String folder) {
     //TODO better path
     String json=null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(token)
+      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(_token)
       .append("&root=auto")
       .append("&path=").append(folder)
       .toString());
     } catch (Exception e) {
-      String url = new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(token)
-      .append("&root=auto")
-      .append("&path=").append(folder)
-      .toString();
-      json = "Unable to parse json " + json + "<br>token:" + token + "<br>" + url;
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json );
+      json = new JSONObject(jsonContent).toString();
     }
     return Response.status(200).entity(json).build();
   }
 
-  public Response removeFile(String file, String token) {
+  public Response removeFile(String file) {
     //TODO better path
     String json=null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(token)
+      json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(_token)
       .append("&root=auto")
       .append("&path=").append(file)
       .toString());
     } catch (Exception e) {
-      String url = new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(token)
-      .append("&root=auto")
-      .append("&path=").append(file)
-      .toString();
-      json = "Unable to parse json " + json + "<br>token:" + token + "<br>" + url;
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json );
+      json = new JSONObject(jsonContent).toString();
     }
     return Response.status(200).entity(json).build();
   }
 
-  public Response moveFile(String from, String to, String token) {
+  public Response moveFile(String from, String to) {
     //TODO better path
     String json=null;
     try {
@@ -206,9 +216,11 @@ public class KiwiShareDropbox {//implements IKiwiShare {
       .put("root", "auto")
       .put("from_path", from)
       .put("to_path", to)
-      .put("access_token", token).build());//TODO token here  ?
+      .put("access_token", _token).build());//TODO token here  ?
     } catch (Exception e) {
-      json = "Unable to parse json " + json + "<br>token:" + token;
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json );
+      json = new JSONObject(jsonContent).toString();
     }
     return Response.status(200).entity(json).build();
   }
