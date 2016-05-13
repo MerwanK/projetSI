@@ -65,7 +65,7 @@ public class KiwiShare implements IKiwiShare {
   }
 
   @GET
-  @Path("/files")
+  @Path("/get")
   @Override
   public Response getFileInfo(@QueryParam("path") String file) {
     //TODO multi Instance

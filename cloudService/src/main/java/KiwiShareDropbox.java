@@ -113,18 +113,19 @@ public class KiwiShareDropbox {//implements IKiwiShare {
   }
 
   public Response getFileInfo(String file) {
-    //TODO try multi level path.
+    Map<String, String> jsonContent = new HashMap();
     String json=null;
     try {
       String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(_token)      .toString();
       HttpGet request = new HttpGet(url);
       DefaultHttpClient httpClient = new DefaultHttpClient();
       HttpResponse response = httpClient.execute(request);
-      for(Header h: response.getAllHeaders()) {
-        json = h.getName() + "-" + h.getValue() + "<br>";
-      }
+
+      HttpEntity entity = response.getEntity();
+      String body = EntityUtils.toString(entity);
+      jsonContent.put("content", body);
+      json = new JSONObject(jsonContent).toString();
     } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json);
       json = new JSONObject(jsonContent).toString();
     }
