@@ -31,7 +31,7 @@ public interface IKiwiShare {
   /**
   * Share a file
   */
-  //public Response shareFile(String file, String otherUser);//TODO
+  public Response shareFile(String file);
 
   /**
   * Get free space

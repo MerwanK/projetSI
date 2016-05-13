@@ -107,12 +107,19 @@ public class KiwiShare implements IKiwiShare {
       return _dropbox.removeFile(file);
   }
 
-
   @GET
   @Path("/mv")
   @Override
   public Response moveFile(@QueryParam("from") String from, @QueryParam("to") String to) {
       //TODO multi Instance
       return _dropbox.moveFile(from, to);
+  }
+
+  @GET
+  @Path("/share")
+  @Override
+  public Response shareFile(@QueryParam("path") String file) {
+      //TODO multi Instance
+      return _dropbox.shareFile(file);
   }
 }
