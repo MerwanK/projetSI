@@ -1,9 +1,11 @@
 package kiwishare;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
@@ -41,28 +43,10 @@ public class KiwiShareDropbox implements IKiwiShare {
   private String _callbackUrl = null;
 
   public KiwiShareDropbox() {
-    JSONObject obj = new JSONObject(readFile("config"));
+    JSONObject obj = new JSONObject(KiwiUtils.readFile("config"));
     _key = obj.getString("app_key");
     _secret = obj.getString("app_secret");
     _callbackUrl = obj.getString("callback_url");
-  }
-
-  public String readFile(String path) {
-    try {
-      BufferedReader br = new BufferedReader(new FileReader(path));
-      StringBuilder sb = new StringBuilder();
-      String line = br.readLine();
-
-      while (line != null) {
-        sb.append(line);
-        sb.append(System.lineSeparator());
-        line = br.readLine();
-      }
-      String everything = sb.toString();
-      return everything;
-    } catch(Exception e) {
-      return "";
-    }
   }
 
   @GET
@@ -124,10 +108,33 @@ public class KiwiShareDropbox implements IKiwiShare {
   }
 
   @GET
+  @Path("/files")
+  @Override
+  public Response getFileInfo(@QueryParam("path") String file, @QueryParam("token") String token) {
+    //TODO try multi level path.
+    String json=null;
+    try {
+      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(token)      .toString();
+      HttpGet request = new HttpGet(url);
+      DefaultHttpClient httpClient = new DefaultHttpClient();
+      HttpResponse response = httpClient.execute(request);
+      for(Header h: response.getAllHeaders()) {
+        json = h.getName() + "-" + h.getValue() + "<br>";
+      }
+    } catch (Exception e) {
+      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(token)
+      .toString();
+      json = "Unable to parse json " + json + "<br>token:" + token + "<br>" + url;
+    }
+    return Response.status(200).entity(json).build();
+  }
+
+
+  @PUT
   @Path("/put")
   @Override
   //TODO put content file
-  public Response sendFile(@QueryParam("content") String toUpload, @QueryParam("path") String destination, @QueryParam("token") String token) {
+  public Response sendFile(@FormParam("content") String toUpload, @QueryParam("path") String destination, @QueryParam("token") String token) {
     String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
@@ -172,30 +179,6 @@ public class KiwiShareDropbox implements IKiwiShare {
     }
     return Response.status(200).entity(json).build();
   }
-
-
-  @GET
-  @Path("/files")
-  @Override
-  public Response getFileInfo(@QueryParam("path") String file, @QueryParam("token") String token) {
-    //TODO better path
-    String json=null;
-    try {
-      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(token)      .toString();
-      HttpGet request = new HttpGet(url);
-      DefaultHttpClient httpClient = new DefaultHttpClient();
-      HttpResponse response = httpClient.execute(request);
-      for(Header h: response.getAllHeaders()) {
-        json = h.getName() + "-" + h.getValue() + "<br>";
-      }
-    } catch (Exception e) {
-      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(token)
-      .toString();
-      json = "Unable to parse json " + json + "<br>token:" + token + "<br>" + url;
-    }
-    return Response.status(200).entity(json).build();
-  }
-
 
   @GET
   @Path("/mkdir")

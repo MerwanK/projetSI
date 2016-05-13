@@ -4,15 +4,22 @@ import javax.ws.rs.core.Response;
 
 public interface IKiwiShare {
 
+  /**
+  * Get OAuth2 url
+  * @return {"err":"ERROR"} if error else {"url":"URL"}
+  */
   public Response getAuthUrl();
 
   /**
-  * Authentificate
+  * Authentificate (return a token)
+  * @param code: the code for OAuth given at the authorization
+  * @param error: if an error occcurs previously
+  * @return {"err":"ERROR"} if error else {"token":"TOKEN"}
   */
   public Response authentificate(String code, String error);
 
   /**
-  * Send a file
+  * Get info from a file
   */
   public Response getFileInfo(String file, String token);
 

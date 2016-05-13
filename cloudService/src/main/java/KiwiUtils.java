@@ -28,6 +28,25 @@ import org.json.*;
 import com.google.common.collect.ImmutableMap;
 
 public class KiwiUtils {
+
+  public static String readFile(String path) {
+    try {
+      BufferedReader br = new BufferedReader(new FileReader(path));
+      StringBuilder sb = new StringBuilder();
+      String line = br.readLine();
+
+      while (line != null) {
+        sb.append(line);
+        sb.append(System.lineSeparator());
+        line = br.readLine();
+      }
+      String everything = sb.toString();
+      return everything;
+    } catch(Exception e) {
+      return "";
+    }
+  }
+
   // makes a GET request to url and returns body as a string
   public static String get(String url) throws ClientProtocolException, IOException {
     return execute(new HttpGet(url));
