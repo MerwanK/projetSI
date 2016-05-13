@@ -1,0 +1,39 @@
+<!doctype html>
+<html ng-app="client" ng-strict-di>
+  <head>
+    <meta charset="utf-8">
+    <title>KiWiShare authentication</title>
+    <link rel="stylesheet" type="text/css" href="auth.css">
+  </head>
+  <body>
+	<h1> Formulaire d'identification </h1>
+
+	<form class="auth_form" name="auth_form" onSubmit="return validateForm();" action="index.html" method="post">
+		<p> Veuillez vous authentifier avant d'accéder à la page.</p>
+		<fieldset>
+			<label for="user">Nom d'utilisateur :</label>
+			<input type="text" size="20" name="user" id="username" placeholder="Username" required><br>
+			<label for="password"> Mot de passe :</label>
+			<input type="text" size="20" name="password" id="password" placeholder="Password" required><br>
+			<button type="submit" class="buttonSubmit" role="button" aria-disabled="false">S'authentifier
+  			</button></p>
+		</fieldset>
+	</form>
+
+	<script>
+    	function validateForm() {
+        	var un = document.auth_form.user.value;
+		var pw = document.auth_form.password.value;
+		var username = "root"; 
+		var password = "root";
+		if ((un == username) && (pw == password)) {
+		    return true;
+		}
+		else {
+		    alert ("Nom d'utilisateur ou mot de passe incorrect, veuillez réessayer.");
+		    return false;
+		}
+  	}
+	</script>
+  </body>
+</html>
