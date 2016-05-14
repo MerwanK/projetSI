@@ -29,6 +29,29 @@ import com.google.common.collect.ImmutableMap;
 
 public class KiwiUtils {
 
+  private static volatile KiwiUtils _instance = null;
+  private String _gpgKey = null;
+  private String _gpgSecret = null;
+  private String _token;
+
+  private KiwiUtils() {
+    JSONObject obj = new JSONObject(KiwiUtils.readFile("gpg.config"));
+    _gpgKey = obj.getString("gpg_key");
+    _gpgSecret = obj.getString("gpg_pass");
+  }
+
+  public static KiwiUtils getInstance() {
+    if(_instance == null) {
+      synchronized (KiwiUtils.class) {
+        _instance =  new KiwiUtils();
+      }
+    }
+    return _instance;
+  }
+
+  public String getGpgKey() { return _gpgKey; }
+  public String getGpgSecret() { return _gpgSecret; }
+
   public static String readFile(String path) {
     try {
       BufferedReader br = new BufferedReader(new FileReader(path));
