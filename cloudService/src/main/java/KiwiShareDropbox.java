@@ -59,7 +59,7 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     return _instance;
   }
 
-  public Response getAuthUrl() {
+  public JSONObject getAuthUrl() {
     Map<String, String> jsonContent = new HashMap();
 
     if(_key == null)
@@ -76,11 +76,10 @@ public class KiwiShareDropbox {//implements IKiwiShare {
       jsonContent.put("url", url);
     }
 
-    JSONObject result = new JSONObject(jsonContent);
-    return Response.status(200).entity(result.toString()).build();
+    return new JSONObject(jsonContent);
   }
 
-  public Response authentificate(String code, String error) {
+  public JSONObject authentificate(String code, String error) {
     Map<String, String> jsonContent = new HashMap();
 
     String body = null;
@@ -108,11 +107,10 @@ public class KiwiShareDropbox {//implements IKiwiShare {
       }
     }
 
-    JSONObject result = new JSONObject(jsonContent);
-    return Response.status(200).entity(result.toString()).build();
+    return new JSONObject(jsonContent);
   }
 
-  public Response getFileInfo(String file) {
+  public JSONObject getFileInfo(String file) {
     Map<String, String> jsonContent = new HashMap();
     String json=null;
     try {
@@ -122,18 +120,17 @@ public class KiwiShareDropbox {//implements IKiwiShare {
       HttpResponse response = httpClient.execute(request);
 
       HttpEntity entity = response.getEntity();
-      String body = EntityUtils.toString(entity);
-      jsonContent.put("content", body);
-      json = new JSONObject(jsonContent).toString();
+      json = EntityUtils.toString(entity);
     } catch (Exception e) {
       jsonContent.put("err", "Unable to parse json " + json);
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response sendFile(String toUpload, String destination) {
-    String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
+  public JSONObject sendFile(String toUpload, String destination) {
+    //TODO : post
+    String url = "https://www.googleapis.com/upload/drive/v2/files" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
     try {
@@ -142,12 +139,16 @@ public class KiwiShareDropbox {//implements IKiwiShare {
       try {
         input = new StringEntity(toUpload);
       } catch (Exception e) {
-        return Response.status(200).entity(e.getMessage()).build();
+        Map<String, String> jsonContent = new HashMap();
+        jsonContent.put("err", e.getMessage());
+        return new JSONObject(jsonContent);
       }
       putRequest.setEntity(input);
       HttpResponse response = httpClient.execute(putRequest);
       if (response.getStatusLine().getStatusCode() != 200) {
-        return Response.status(200).entity("err:"+ response.getStatusLine().getStatusCode()).build();
+        Map<String, String> jsonContent = new HashMap();
+        jsonContent.put("err", new Integer(response.getStatusLine().getStatusCode()).toString());
+        return new JSONObject(jsonContent);
       }
       BufferedReader br = new BufferedReader(new InputStreamReader(
       (response.getEntity().getContent())));
@@ -157,14 +158,17 @@ public class KiwiShareDropbox {//implements IKiwiShare {
       }
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", e.getMessage() );
-      return Response.status(200).entity(new JSONObject(jsonContent).toString()).build();
+      jsonContent.put("err", e.getMessage());
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(result.toString()).build();
+
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("send", result.toString());
+    return new JSONObject(jsonContent);
   }
 
 
-  public Response getSpaceInfo() {
+  public JSONObject getSpaceInfo() {
     String json=null;
     try {
       json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(_token)
@@ -172,12 +176,12 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json);
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response mkdir(String folder) {
+  public JSONObject mkdir(String folder) {
     //TODO better path
     String json=null;
     try {
@@ -188,12 +192,12 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response removeFile(String file) {
+  public JSONObject removeFile(String file) {
     //TODO better path
     String json=null;
     try {
@@ -204,12 +208,12 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response moveFile(String from, String to) {
+  public JSONObject moveFile(String from, String to) {
     //TODO better path
     String json=null;
     try {
@@ -221,12 +225,12 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response shareFile(String file) {
+  public JSONObject shareFile(String file) {
     //TODO better path
     String json=null;
     try {
@@ -236,8 +240,8 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 }

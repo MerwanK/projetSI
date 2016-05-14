@@ -59,7 +59,7 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     return _instance;
   }
 
-  public Response getAuthUrl() {
+  public JSONObject getAuthUrl() {
     Map<String, String> jsonContent = new HashMap();
 
     if(_key == null)
@@ -78,10 +78,10 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     }
 
     JSONObject result = new JSONObject(jsonContent);
-    return Response.status(200).entity(result.toString()).build();
+    return result;
   }
 
-  public Response authentificate(String code, String error) {
+  public JSONObject authentificate(String code, String error) {
     Map<String, String> jsonContent = new HashMap();
 
     String body = null;
@@ -110,31 +110,30 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     }
 
     JSONObject result = new JSONObject(jsonContent);
-    return Response.status(200).entity(result.toString()).build();
+    return result;
   }
 
-  public Response getFileInfo(String file) {
-      Map<String, String> jsonContent = new HashMap();
-      String json=null;
-      try {
-        String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(_token)      .toString();
-        HttpGet request = new HttpGet(url);
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpResponse response = httpClient.execute(request);
+  public JSONObject getFileInfo(String file) {
+    Map<String, String> jsonContent = new HashMap();
+    String json=null;
+    try {
+      String url = new StringBuilder("https://www.googleapis.com/drive/v2/files/"+file+"?access_token=").append(_token)      .toString();
+      HttpGet request = new HttpGet(url);
+      DefaultHttpClient httpClient = new DefaultHttpClient();
+      HttpResponse response = httpClient.execute(request);
 
-        HttpEntity entity = response.getEntity();
-        String body = EntityUtils.toString(entity);
-        jsonContent.put("content", body);
-        json = new JSONObject(jsonContent).toString();
-      } catch (Exception e) {
-        jsonContent.put("err", "Unable to parse json " + json);
-        json = new JSONObject(jsonContent).toString();
-      }
-      return Response.status(200).entity(json).build();
+      HttpEntity entity = response.getEntity();
+      json = EntityUtils.toString(entity);
+    } catch (Exception e) {
+      jsonContent.put("err", "Unable to parse json " + json);
+      return new JSONObject(jsonContent);
+    }
+    return new JSONObject(json);
   }
 
-  public Response sendFile(String toUpload, String destination) {
-    String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
+  public JSONObject sendFile(String toUpload, String destination) {
+    //TODO : post
+    String url = "https://www.googleapis.com/upload/drive/v2/files" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
     try {
@@ -143,12 +142,16 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
       try {
         input = new StringEntity(toUpload);
       } catch (Exception e) {
-        return Response.status(200).entity(e.getMessage()).build();
+        Map<String, String> jsonContent = new HashMap();
+        jsonContent.put("err", e.getMessage());
+        return new JSONObject(jsonContent);
       }
       putRequest.setEntity(input);
       HttpResponse response = httpClient.execute(putRequest);
       if (response.getStatusLine().getStatusCode() != 200) {
-        return Response.status(200).entity("err:"+ response.getStatusLine().getStatusCode()).build();
+        Map<String, String> jsonContent = new HashMap();
+        jsonContent.put("err", new Integer(response.getStatusLine().getStatusCode()).toString());
+        return new JSONObject(jsonContent);
       }
       BufferedReader br = new BufferedReader(new InputStreamReader(
       (response.getEntity().getContent())));
@@ -158,28 +161,31 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
       }
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", e.getMessage() );
-      return Response.status(200).entity(new JSONObject(jsonContent).toString()).build();
+      jsonContent.put("err", e.getMessage());
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(result.toString()).build();
+
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("send", result.toString());
+    return new JSONObject(jsonContent);
   }
 
 
-  public Response getSpaceInfo() {
+  public JSONObject getSpaceInfo() {
     String json=null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(_token)
+      json = KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/about?access_token=").append(_token)
       .toString());
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json);
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response mkdir(String folder) {
-    //TODO better path
+  public JSONObject mkdir(String folder) {
+    //TODO A folder is a file with the MIME type application/vnd.google-apps.folder and with no extension.
     String json=null;
     try {
       json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(_token)
@@ -189,13 +195,13 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response removeFile(String file) {
-    //TODO better path
+  public JSONObject removeFile(String file) {
+    //TODO DELETE  /files/fileId
     String json=null;
     try {
       json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(_token)
@@ -205,13 +211,13 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response moveFile(String from, String to) {
-    //TODO better path
+  public JSONObject moveFile(String from, String to) {
+    //TODO
     String json=null;
     try {
       json = KiwiUtils.post("https://api.dropboxapi.com/1/fileops/move", ImmutableMap.<String,String>builder()
@@ -222,13 +228,13 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 
-  public Response shareFile(String file) {
-    //TODO better path
+  public JSONObject shareFile(String file) {
+    //TODO
     String json=null;
     try {
       json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/shares/auto/").append(file)
@@ -237,8 +243,8 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
-      json = new JSONObject(jsonContent).toString();
+      return new JSONObject(jsonContent);
     }
-    return Response.status(200).entity(json).build();
+    return new JSONObject(json);
   }
 }

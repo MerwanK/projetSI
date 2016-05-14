@@ -52,10 +52,10 @@ public class KiwiShare implements IKiwiShare {
   @Path("authurl")
   public Response getAuthUrl(@QueryParam("type") String type) {
     if(type.equals("dropbox")) {
-      return _dropbox.getAuthUrl();
+      return Response.status(200).entity(_dropbox.getAuthUrl().toString()).build();
     }
     else if(type.equals("drive")) {
-      return _drive.getAuthUrl();
+      return Response.status(200).entity(_drive.getAuthUrl().toString()).build();
     }
     Map<String, String> jsonContent = new HashMap();
     jsonContent.put("err", "unknown type");
@@ -67,22 +67,24 @@ public class KiwiShare implements IKiwiShare {
   @Path("/callbackDropbox")
   @Override
   public Response authentificateDropbox(@QueryParam("code") String code, @QueryParam("error") String error) {
-    return _dropbox.authentificate(code, error);
+    return Response.status(200).entity(_dropbox.authentificate(code, error).toString()).build();
   }
 
   @GET
   @Path("/callbackDrive")
   @Override
   public Response authentificateDrive(@QueryParam("code") String code, @QueryParam("error") String error) {
-    return _drive.authentificate(code, error);
+    return Response.status(200).entity(_drive.authentificate(code, error).toString()).build();
   }
 
   @GET
   @Path("/get")
   @Override
   public Response getFileInfo(@QueryParam("path") String file) {
-    //TODO multi Instance
-    return _dropbox.getFileInfo(file);
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.getFileInfo(file));
+    result.put("drive", _drive.getFileInfo(file));
+    return Response.status(200).entity(result.toString()).build();
   }
 
   //@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -92,6 +94,13 @@ public class KiwiShare implements IKiwiShare {
   public Response sendFile(@FormParam("content") String toUpload, @QueryParam("path") String destination) {
     //TODO multi Instance
     return Response.status(200).entity(toUpload).build();
+    /*
+
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.getFileInfo(file));
+    result.put("drive", _drive.getFileInfo(file));
+    return Response.status(200).entity(result.toString()).build();
+    */
     //return _dropbox.sendFile(toUpload, destination);
   }
 
@@ -100,39 +109,49 @@ public class KiwiShare implements IKiwiShare {
   @Path("/info")
   @Override
   public Response getSpaceInfo() {
-    //TODO multi Instance
-    return _dropbox.getSpaceInfo();
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.getSpaceInfo());
+    result.put("drive", _drive.getSpaceInfo());
+    return Response.status(200).entity(result.toString()).build();
   }
 
   @GET
   @Path("/mkdir")
   @Override
   public Response mkdir(@QueryParam("path") String folder) {
-    //TODO multi Instance
-    return _dropbox.mkdir(folder);
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.mkdir(folder));
+    result.put("drive", _drive.mkdir(folder));
+    return Response.status(200).entity(result.toString()).build();
   }
 
   @GET
   @Path("/rm")
   @Override
   public Response removeFile(@QueryParam("path") String file) {
-    //TODO multi Instance
-    return _dropbox.removeFile(file);
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.removeFile(file));
+    result.put("drive", _drive.removeFile(file));
+    return Response.status(200).entity(result.toString()).build();
   }
 
   @GET
   @Path("/mv")
   @Override
   public Response moveFile(@QueryParam("from") String from, @QueryParam("to") String to) {
-    //TODO multi Instance
-    return _dropbox.moveFile(from, to);
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.moveFile(from, to));
+    result.put("drive", _drive.moveFile(from, to));
+    return Response.status(200).entity(result.toString()).build();
   }
 
   @GET
   @Path("/share")
   @Override
   public Response shareFile(@QueryParam("path") String file) {
-    //TODO multi Instance
-    return _dropbox.shareFile(file);
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.shareFile(file));
+    result.put("drive", _drive.shareFile(file));
+    return Response.status(200).entity(result.toString()).build();
   }
 }
