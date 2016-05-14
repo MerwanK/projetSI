@@ -1,6 +1,7 @@
 package kiwishare;
 
 import org.json.*;
+import java.io.InputStream;
 
 public interface IServiceEndpoint {
 
@@ -10,7 +11,7 @@ public interface IServiceEndpoint {
 
   public JSONObject getFileInfo(String file);
 
-  public JSONObject sendFile(String toUpload, String destination);
+  public JSONObject sendFile(InputStream toUpload, String destination);
 
   public JSONObject getSpaceInfo();
 

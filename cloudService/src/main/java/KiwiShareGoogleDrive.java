@@ -10,12 +10,14 @@ import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -131,9 +133,12 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     return new JSONObject(json);
   }
 
-  public JSONObject sendFile(String toUpload, String destination) {
+  public JSONObject sendFile(InputStream toUpload, String destination) {
     //TODO : post
-    String url = "https://www.googleapis.com/upload/drive/v2/files" + destination + "?param=val&access_token=" + _token;
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "TODO");
+      return new JSONObject(jsonContent);
+    /*String url = "https://www.googleapis.com/upload/drive/v2/files" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
     try {
@@ -167,7 +172,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
 
     Map<String, String> jsonContent = new HashMap();
     jsonContent.put("send", result.toString());
-    return new JSONObject(jsonContent);
+    return new JSONObject(jsonContent);*/
   }
 
 

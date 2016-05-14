@@ -2,6 +2,7 @@ package kiwishare;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -87,21 +89,15 @@ public class KiwiShare implements IKiwiShare {
     return Response.status(200).entity(result.toString()).build();
   }
 
-  //@Consumes(MediaType.MULTIPART_FORM_DATA)
-  @PUT
+  @POST
   @Path("/put")
   @Override
-  public Response sendFile(@FormParam("content") String toUpload, @QueryParam("path") String destination) {
-    //TODO multi Instance
-    return Response.status(200).entity(toUpload).build();
-    /*
-
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  public Response sendFile(@FormDataParam("file") InputStream file, @QueryParam("path") String destination) {
     JSONObject result = new JSONObject();
-    result.put("dropbox", _dropbox.getFileInfo(file));
-    result.put("drive", _drive.getFileInfo(file));
+    result.put("dropbox", _dropbox.sendFile(file, destination));
+    result.put("drive", _drive.sendFile(file, destination));
     return Response.status(200).entity(result.toString()).build();
-    */
-    //return _dropbox.sendFile(toUpload, destination);
   }
 
 

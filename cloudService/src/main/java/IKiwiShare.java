@@ -1,6 +1,7 @@
 package kiwishare;
 
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 
 public interface IKiwiShare {
 
@@ -34,7 +35,7 @@ public interface IKiwiShare {
   /**
   * Send a file
   */
-  public Response sendFile(String toUpload, String destination);
+  public Response sendFile(InputStream file, String destination);
 
   /**
   * Share a file
