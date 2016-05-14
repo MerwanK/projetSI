@@ -19,6 +19,14 @@ public interface IKiwiShare {
   public Response authentificateDropbox(String code, String error);
 
   /**
+  * Authentificate (return a token)
+  * @param code: the code for OAuth given at the authorization
+  * @param error: if an error occcurs previously
+  * @return {"err":"ERROR"} if error else {"token":"TOKEN"}
+  */
+  public Response authentificateDrive(String code, String error);
+
+  /**
   * Get info from a file
   */
   public Response getFileInfo(String file);

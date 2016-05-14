@@ -40,9 +40,12 @@ import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/kiwishare")
 public class KiwiShare implements IKiwiShare {
-  private KiwiShareDropbox _dropbox = null; //TODO change MAP<String, IKiwiShare>
+  private KiwiShareDropbox     _dropbox = null;
+  private KiwiShareGoogleDrive _drive = null;  //TODO change MAP<String, IKiwiShare>
+
   public KiwiShare() {
     _dropbox = KiwiShareDropbox.getInstance();
+    _drive = KiwiShareGoogleDrive.getInstance();
   }
 
   @GET
@@ -50,6 +53,9 @@ public class KiwiShare implements IKiwiShare {
   public Response getAuthUrl(@QueryParam("type") String type) {
     if(type.equals("dropbox")) {
       return _dropbox.getAuthUrl();
+    }
+    else if(type.equals("drive")) {
+      return _drive.getAuthUrl();
     }
     Map<String, String> jsonContent = new HashMap();
     jsonContent.put("err", "unknown type");
@@ -62,6 +68,13 @@ public class KiwiShare implements IKiwiShare {
   @Override
   public Response authentificateDropbox(@QueryParam("code") String code, @QueryParam("error") String error) {
     return _dropbox.authentificate(code, error);
+  }
+
+  @GET
+  @Path("/callbackDrive")
+  @Override
+  public Response authentificateDrive(@QueryParam("code") String code, @QueryParam("error") String error) {
+    return _drive.authentificate(code, error);
   }
 
   @GET
@@ -87,39 +100,39 @@ public class KiwiShare implements IKiwiShare {
   @Path("/info")
   @Override
   public Response getSpaceInfo() {
-      //TODO multi Instance
-      return _dropbox.getSpaceInfo();
+    //TODO multi Instance
+    return _dropbox.getSpaceInfo();
   }
 
   @GET
   @Path("/mkdir")
   @Override
   public Response mkdir(@QueryParam("path") String folder) {
-      //TODO multi Instance
-      return _dropbox.mkdir(folder);
+    //TODO multi Instance
+    return _dropbox.mkdir(folder);
   }
 
   @GET
   @Path("/rm")
   @Override
   public Response removeFile(@QueryParam("path") String file) {
-      //TODO multi Instance
-      return _dropbox.removeFile(file);
+    //TODO multi Instance
+    return _dropbox.removeFile(file);
   }
 
   @GET
   @Path("/mv")
   @Override
   public Response moveFile(@QueryParam("from") String from, @QueryParam("to") String to) {
-      //TODO multi Instance
-      return _dropbox.moveFile(from, to);
+    //TODO multi Instance
+    return _dropbox.moveFile(from, to);
   }
 
   @GET
   @Path("/share")
   @Override
   public Response shareFile(@QueryParam("path") String file) {
-      //TODO multi Instance
-      return _dropbox.shareFile(file);
+    //TODO multi Instance
+    return _dropbox.shareFile(file);
   }
 }

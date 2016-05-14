@@ -44,7 +44,7 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
   private String _token;
 
   private KiwiShareGoogleDrive() {
-    JSONObject obj = new JSONObject(KiwiUtils.readFile("config"));
+    JSONObject obj = new JSONObject(KiwiUtils.readFile("drive.config"));
     _key = obj.getString("app_key");
     _secret = obj.getString("app_secret");
     _callbackUrl = obj.getString("callback_url");
@@ -70,9 +70,10 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     } else if(_callbackUrl == null) {
       jsonContent.put("err", "incorrect config (callback_url)");
     } else {
-      String url = "https://www.dropbox.com/1/oauth2/authorize?response_type=code&" +
-      "client_id=" + _key +
-      "&redirect_uri=" + _callbackUrl;
+      String url = new StringBuilder("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&")
+      .append("client_id=").append(_key)
+      .append("&redirect_uri=").append(_callbackUrl)
+      .toString();
       jsonContent.put("url", url);
     }
 
@@ -91,7 +92,7 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     else {
       try {
 
-        body = KiwiUtils.post("https://api.dropboxapi.com/1/oauth2/token", ImmutableMap.<String,String>builder()
+        body = KiwiUtils.post("https://www.googleapis.com/oauth2/v4/token", ImmutableMap.<String,String>builder()
         .put("code", code)
         .put("client_id", _key)
         .put("client_secret", _secret)

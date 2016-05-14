@@ -44,7 +44,7 @@ public class KiwiShareDropbox {//implements IKiwiShare {
   private String _token;
 
   private KiwiShareDropbox() {
-    JSONObject obj = new JSONObject(KiwiUtils.readFile("config"));
+    JSONObject obj = new JSONObject(KiwiUtils.readFile("dropbox.config"));
     _key = obj.getString("app_key");
     _secret = obj.getString("app_secret");
     _callbackUrl = obj.getString("callback_url");
