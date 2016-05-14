@@ -154,4 +154,18 @@ public class KiwiShare implements IKiwiShare {
     result.put("drive", _drive.shareFile(file));
     return Response.status(200).entity(result.toString()).build();
   }
+
+
+  @GET
+  @Path("/tree")
+  @Override
+  public Response tree() {
+    //https://www.dropbox.com/developers-v1/core/docs:/metadata
+    //https://developers.google.com/drive/v2/reference/files/list#try-it
+    //TODO: generate beautiful tree
+    JSONObject result = new JSONObject();
+    result.put("dropbox", _dropbox.tree());
+    result.put("drive", _drive.tree());
+    return Response.status(200).entity(result.toString()).build();
+  }
 }

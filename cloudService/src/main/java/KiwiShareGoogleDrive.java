@@ -247,4 +247,20 @@ public class KiwiShareGoogleDrive {//implements IKiwiShare {
     }
     return new JSONObject(json);
   }
+
+  public JSONObject tree() {
+    //TODO generate tree
+    String json=null;
+    try {
+      json = KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/files")
+      .append("?access_token=").append(_token)
+      .append("&spaces=drive")
+      .toString());
+    } catch (Exception e) {
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json );
+      return new JSONObject(jsonContent);
+    }
+    return new JSONObject(json);
+  }
 }

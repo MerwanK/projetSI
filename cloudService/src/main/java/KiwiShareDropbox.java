@@ -244,4 +244,19 @@ public class KiwiShareDropbox {//implements IKiwiShare {
     }
     return new JSONObject(json);
   }
+
+  public JSONObject tree() {
+    //TODO beautiful tree
+    String json=null;
+    try {
+      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/metadata/auto/")
+      .append("?access_token=").append(_token)
+      .toString());
+    } catch (Exception e) {
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json );
+      return new JSONObject(jsonContent);
+    }
+    return new JSONObject(json);
+  }
 }

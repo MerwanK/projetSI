@@ -62,4 +62,9 @@ public interface IKiwiShare {
   */
   public Response mkdir(String folder);
 
+  /**
+  * list files in directory
+  */
+  public Response tree();
+
 }
