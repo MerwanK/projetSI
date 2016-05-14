@@ -35,7 +35,7 @@ import java.text.ParseException;
 import org.json.*;
 import com.google.common.collect.ImmutableMap;
 
-public class KiwiShareDropbox {//implements IKiwiShare {
+public class KiwiShareDropbox implements IServiceEndpoint {
 
   private static volatile KiwiShareDropbox _instance = null;
   private String _key = null;

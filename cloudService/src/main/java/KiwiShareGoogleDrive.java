@@ -35,7 +35,7 @@ import java.text.ParseException;
 import org.json.*;
 import com.google.common.collect.ImmutableMap;
 
-public class KiwiShareGoogleDrive {//implements IKiwiShare {
+public class KiwiShareGoogleDrive implements IServiceEndpoint {
 
   private static volatile KiwiShareGoogleDrive _instance = null;
   private String _key = null;
