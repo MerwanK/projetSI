@@ -11,7 +11,7 @@ public interface IServiceEndpoint {
 
   public JSONObject getFileInfo(String file);
 
-  public JSONObject sendFile(InputStream toUpload, String destination);
+  public JSONObject sendFile(InputStream toUpload, String destination, String contentType);
 
   public JSONObject getSpaceInfo();
 

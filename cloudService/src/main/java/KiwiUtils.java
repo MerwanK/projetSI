@@ -95,6 +95,19 @@ public class KiwiUtils {
     return execute(request);
   }
 
+  public static String post(String url, Map<String,String> formParameters, String body) throws ClientProtocolException, IOException {
+    HttpPost request = new HttpPost(url);
+
+    for (String key : formParameters.keySet()) {
+      request.setHeader(key, formParameters.get(key));
+    }
+
+    HttpEntity ent = new StringEntity(body);
+    request.setEntity(ent);
+
+    return execute(request);
+  }
+
   // makes a POST request to url with form parameters and returns body as a string
   public static String post(String url, JSONObject content) throws ClientProtocolException, IOException {
     HttpPost request = new HttpPost(url);

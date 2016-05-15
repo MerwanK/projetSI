@@ -18,6 +18,8 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -66,49 +68,49 @@ public class KiwiEncrypt {
 
       String line = "";
       while ((line = reader.readLine())!= null) {
-        result += line + "\n";
-      }
-
-      File encryptedFile = new File(name+".asc");
-      targetFile.delete();
-      encryptedFile.delete();
-
-    } catch(Exception e) {
-      return Response.status(200).entity(e.getMessage()).build();
+      result += line + "\n";
     }
-    return Response.status(200).entity(result).build();
+
+    File encryptedFile = new File(name+".asc");
+    targetFile.delete();
+    encryptedFile.delete();
+
+  } catch(Exception e) {
+    return Response.status(200).entity(e.getMessage()).build();
   }
+  return Response.status(200).entity(result).build();
+}
 
 
-  @POST
-  @Path("/decrypt")
-  @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response decrypt(@FormDataParam("file") InputStream file, @QueryParam("name") String name) {
-    String result = "";
-    try {
-      Process p;
+@POST
+@Path("/decrypt")
+@Consumes(MediaType.MULTIPART_FORM_DATA)
+public Response decrypt(@FormDataParam("file") InputStream file, @QueryParam("name") String name) {
+  String result = "";
+  try {
+    Process p;
 
-      File targetFile = new File(name);
+    File targetFile = new File(name);
 
-      FileUtils.copyInputStreamToFile(file, targetFile);
-      String command = "gpg --batch --decrypt --passphrase " + KiwiUtils.getInstance().getGpgSecret() + " --output " + name + ".dec " + name;
-      p = Runtime.getRuntime().exec(command);
-      p.waitFor();
+    FileUtils.copyInputStreamToFile(file, targetFile);
+    String command = "gpg --batch --decrypt --passphrase " + KiwiUtils.getInstance().getGpgSecret() + " --output " + name + ".dec " + name;
+    p = Runtime.getRuntime().exec(command);
+    p.waitFor();
 
-      BufferedReader reader = new BufferedReader(new FileReader(name + ".dec"));
+    BufferedReader reader = new BufferedReader(new FileReader(name + ".dec"));
 
-      String line = "";
-      while ((line = reader.readLine())!= null) {
-        result += line + "\n";
-      }
-
-      File decryptedFile = new File(name+".dec");
-      targetFile.delete();
-      decryptedFile.delete();
-
-    } catch(Exception e) {
-      return Response.status(200).entity(e.getMessage()).build();
+    String line = "";
+    while ((line = reader.readLine())!= null) {
+      result += line + "\n";
     }
-    return Response.status(200).entity(result).build();
+
+    File decryptedFile = new File(name+".dec");
+    targetFile.delete();
+    decryptedFile.delete();
+
+  } catch(Exception e) {
+    return Response.status(200).entity(e.getMessage()).build();
   }
+  return Response.status(200).entity(result).build();
+}
 }

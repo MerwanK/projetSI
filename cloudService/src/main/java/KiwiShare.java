@@ -93,10 +93,10 @@ public class KiwiShare implements IKiwiShare {
   @Path("/put")
   @Override
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response sendFile(@FormDataParam("file") InputStream file, @QueryParam("path") String destination) {
+  public Response sendFile(@FormDataParam("file") InputStream file, @QueryParam("path") String destination, @QueryParam("type") String type) {
     JSONObject result = new JSONObject();
-    result.put("dropbox", _dropbox.sendFile(file, destination));
-    result.put("drive", _drive.sendFile(file, destination));
+    result.put("dropbox", _dropbox.sendFile(file, destination, type));
+    result.put("drive", _drive.sendFile(file, destination, type));
     return Response.status(200).entity(result.toString()).build();
   }
 
