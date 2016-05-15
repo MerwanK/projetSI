@@ -113,8 +113,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   }
 
   public JSONObject getFileInfo(String file) {
-    Map<String, String> jsonContent = new HashMap();
-    String json=null;
+    JSONObject result = null;
     try {
       String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(_token)      .toString();
       HttpGet request = new HttpGet(url);
@@ -122,12 +121,16 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       HttpResponse response = httpClient.execute(request);
 
       HttpEntity entity = response.getEntity();
-      json = EntityUtils.toString(entity);
+      String downloadUrl = this.shareFile(file).getString("url");
+
+      result = new JSONObject(response.getFirstHeader("x-dropbox-metadata").getValue());
+      result.put("download_url", downloadUrl);
     } catch (Exception e) {
-      jsonContent.put("err", "Unable to parse json " + json);
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json ");
       return new JSONObject(jsonContent);
     }
-    return new JSONObject(json);
+    return result;
   }
 
   public JSONObject sendFile(InputStream toUpload, String destination) {

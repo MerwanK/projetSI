@@ -44,12 +44,14 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   private String _secret = null;
   private String _callbackUrl = null;
   private String _token;
+  private Map<String, GoogleFile> _fileToId = null;
 
   private KiwiShareGoogleDrive() {
     JSONObject obj = new JSONObject(KiwiUtils.readFile("drive.config"));
     _key = obj.getString("app_key");
     _secret = obj.getString("app_secret");
     _callbackUrl = obj.getString("callback_url");
+    this._fileToId = new HashMap<String, GoogleFile>();
   }
 
   public static KiwiShareGoogleDrive getInstance() {
@@ -116,10 +118,13 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject getFileInfo(String file) {
+    //TODO check path & parents
+    this.synchronize();
+    String filename = this._fileToId.get(file).getId();
     Map<String, String> jsonContent = new HashMap();
     String json=null;
     try {
-      String url = new StringBuilder("https://www.googleapis.com/drive/v2/files/"+file+"?access_token=").append(_token)      .toString();
+      String url = new StringBuilder("https://www.googleapis.com/drive/v2/files/"+filename+"?access_token=").append(_token)      .toString();
       HttpGet request = new HttpGet(url);
       DefaultHttpClient httpClient = new DefaultHttpClient();
       HttpResponse response = httpClient.execute(request);
@@ -127,145 +132,199 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       HttpEntity entity = response.getEntity();
       json = EntityUtils.toString(entity);
     } catch (Exception e) {
-      jsonContent.put("err", "Unable to parse json " + json);
+      jsonContent.put("err", "Unable to parse json " + json + " for filename:" + filename);
       return new JSONObject(jsonContent);
     }
     return new JSONObject(json);
   }
 
+
+
+
   public JSONObject sendFile(InputStream toUpload, String destination) {
     //TODO : post
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "TODO");
-      return new JSONObject(jsonContent);
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("err", "TODO");
+    return new JSONObject(jsonContent);
     /*String url = "https://www.googleapis.com/upload/drive/v2/files" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
     try {
-      HttpPut putRequest = new HttpPut(url);
-      StringEntity input;
-      try {
-        input = new StringEntity(toUpload);
-      } catch (Exception e) {
-        Map<String, String> jsonContent = new HashMap();
-        jsonContent.put("err", e.getMessage());
-        return new JSONObject(jsonContent);
-      }
-      putRequest.setEntity(input);
-      HttpResponse response = httpClient.execute(putRequest);
-      if (response.getStatusLine().getStatusCode() != 200) {
-        Map<String, String> jsonContent = new HashMap();
-        jsonContent.put("err", new Integer(response.getStatusLine().getStatusCode()).toString());
-        return new JSONObject(jsonContent);
-      }
-      BufferedReader br = new BufferedReader(new InputStreamReader(
-      (response.getEntity().getContent())));
-      String output;
-      while ((output = br.readLine()) != null) {
-        result.append(output);
-      }
-    } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", e.getMessage());
-      return new JSONObject(jsonContent);
-    }
+    HttpPut putRequest = new HttpPut(url);
+    StringEntity input;
+    try {
+    input = new StringEntity(toUpload);
+  } catch (Exception e) {
+  Map<String, String> jsonContent = new HashMap();
+  jsonContent.put("err", e.getMessage());
+  return new JSONObject(jsonContent);
+}
+putRequest.setEntity(input);
+HttpResponse response = httpClient.execute(putRequest);
+if (response.getStatusLine().getStatusCode() != 200) {
+Map<String, String> jsonContent = new HashMap();
+jsonContent.put("err", new Integer(response.getStatusLine().getStatusCode()).toString());
+return new JSONObject(jsonContent);
+}
+BufferedReader br = new BufferedReader(new InputStreamReader(
+(response.getEntity().getContent())));
+String output;
+while ((output = br.readLine()) != null) {
+result.append(output);
+}
+} catch (Exception e) {
+Map<String, String> jsonContent = new HashMap();
+jsonContent.put("err", e.getMessage());
+return new JSONObject(jsonContent);
+}
 
+Map<String, String> jsonContent = new HashMap();
+jsonContent.put("send", result.toString());
+return new JSONObject(jsonContent);*/
+}
+
+
+public JSONObject getSpaceInfo() {
+  String json=null;
+  try {
+    json = KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/about?access_token=").append(_token)
+    .toString());
+  } catch (Exception e) {
     Map<String, String> jsonContent = new HashMap();
-    jsonContent.put("send", result.toString());
-    return new JSONObject(jsonContent);*/
+    jsonContent.put("err", "Unable to parse json " + json);
+    return new JSONObject(jsonContent);
   }
+  return new JSONObject(json);
+}
 
+public JSONObject mkdir(String folder) {
+  //TODO A folder is a file with the MIME type application/vnd.google-apps.folder and with no extension.
+  String json=null;
+  try {
+    json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(_token)
+    .append("&root=auto")
+    .append("&path=").append(folder)
+    .toString());
+  } catch (Exception e) {
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("err", "Unable to parse json " + json );
+    return new JSONObject(jsonContent);
+  }
+  return new JSONObject(json);
+}
 
-  public JSONObject getSpaceInfo() {
-    String json=null;
-    try {
-      json = KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/about?access_token=").append(_token)
-      .toString());
-    } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json);
-      return new JSONObject(jsonContent);
+public JSONObject removeFile(String file) {
+  //TODO DELETE  /files/fileId
+  String json=null;
+  try {
+    json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(_token)
+    .append("&root=auto")
+    .append("&path=").append(file)
+    .toString());
+  } catch (Exception e) {
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("err", "Unable to parse json " + json );
+    return new JSONObject(jsonContent);
+  }
+  return new JSONObject(json);
+}
+
+public JSONObject moveFile(String from, String to) {
+  //TODO
+  String json=null;
+  try {
+    json = KiwiUtils.post("https://api.dropboxapi.com/1/fileops/move", ImmutableMap.<String,String>builder()
+    .put("root", "auto")
+    .put("from_path", from)
+    .put("to_path", to)
+    .put("access_token", _token).build());//TODO token here  ?
+  } catch (Exception e) {
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("err", "Unable to parse json " + json );
+    return new JSONObject(jsonContent);
+  }
+  return new JSONObject(json);
+}
+
+public JSONObject shareFile(String file) {
+  //TODO
+  String json=null;
+  try {
+    json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/shares/auto/").append(file)
+    .append("?access_token=").append(_token)
+    .toString());
+  } catch (Exception e) {
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("err", "Unable to parse json " + json );
+    return new JSONObject(jsonContent);
+  }
+  return new JSONObject(json);
+}
+
+public JSONObject tree() {
+  //TODO generate tree
+  String json=null;
+  try {
+    json = KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/files")
+    .append("?access_token=").append(_token)
+    .append("&spaces=drive")
+    .toString());
+  } catch (Exception e) {
+    Map<String, String> jsonContent = new HashMap();
+    jsonContent.put("err", "Unable to parse json " + json );
+    return new JSONObject(jsonContent);
+  }
+  return new JSONObject(json);
+}
+
+//TODO: more clever sync
+private void synchronize() {
+  JSONObject content = tree();
+  JSONArray items = content.getJSONArray("items");
+  this._fileToId = new HashMap<String, GoogleFile>();
+  for(int i = 0; i < items.length(); ++i) {
+    JSONObject item = items.getJSONObject(i);
+    String id = item.getString("id");
+    String title = item.getString("title");
+    List<GoogleFolder> parents = new ArrayList<GoogleFolder>();
+    JSONArray parentsArray = item.getJSONArray("parents");
+    for(int j = 0; j < parentsArray.length(); ++j) {
+      JSONObject parent = parentsArray.getJSONObject(j);
+      parents.add(new GoogleFolder(parent.getString("id"), parent.getBoolean("isRoot")));
     }
-    return new JSONObject(json);
+    this._fileToId.put(title, new GoogleFile(id, title, parents));
+  }
+}
+
+
+private class GoogleFile {
+  private String _id = null;
+  private String _title = null;
+  private List<GoogleFolder> _parents = null;
+
+  public GoogleFile(String id, String title, List<GoogleFolder> parents) {
+    this._id = id;
+    this._title = title;
+    this._parents = parents;
   }
 
-  public JSONObject mkdir(String folder) {
-    //TODO A folder is a file with the MIME type application/vnd.google-apps.folder and with no extension.
-    String json=null;
-    try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(_token)
-      .append("&root=auto")
-      .append("&path=").append(folder)
-      .toString());
-    } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
-      return new JSONObject(jsonContent);
-    }
-    return new JSONObject(json);
+  public String getId() { return this._id; }
+  public String getTitle() { return this._title; }
+  public List<GoogleFolder> getParents() { return this._parents; }
+}
+
+
+private class GoogleFolder {
+  private String _id = null;
+  private boolean _isRoot = false;
+
+  public GoogleFolder(String id, boolean root) {
+    this._id = id;
+    this._isRoot = root;
   }
 
-  public JSONObject removeFile(String file) {
-    //TODO DELETE  /files/fileId
-    String json=null;
-    try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(_token)
-      .append("&root=auto")
-      .append("&path=").append(file)
-      .toString());
-    } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
-      return new JSONObject(jsonContent);
-    }
-    return new JSONObject(json);
-  }
+  public String getId() { return this._id; }
 
-  public JSONObject moveFile(String from, String to) {
-    //TODO
-    String json=null;
-    try {
-      json = KiwiUtils.post("https://api.dropboxapi.com/1/fileops/move", ImmutableMap.<String,String>builder()
-      .put("root", "auto")
-      .put("from_path", from)
-      .put("to_path", to)
-      .put("access_token", _token).build());//TODO token here  ?
-    } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
-      return new JSONObject(jsonContent);
-    }
-    return new JSONObject(json);
-  }
-
-  public JSONObject shareFile(String file) {
-    //TODO
-    String json=null;
-    try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/shares/auto/").append(file)
-      .append("?access_token=").append(_token)
-      .toString());
-    } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
-      return new JSONObject(jsonContent);
-    }
-    return new JSONObject(json);
-  }
-
-  public JSONObject tree() {
-    //TODO generate tree
-    String json=null;
-    try {
-      json = KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/files")
-      .append("?access_token=").append(_token)
-      .append("&spaces=drive")
-      .toString());
-    } catch (Exception e) {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
-      return new JSONObject(jsonContent);
-    }
-    return new JSONObject(json);
-  }
+  public boolean isRoot() { return _isRoot; }
+}
 }
