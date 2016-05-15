@@ -7,9 +7,9 @@ public interface IKiwiShare {
 
   /**
   * Get OAuth2 url
-  * @return {"err":"ERROR"} if error else {"url":"URL"}
+  * @return {"err":"ERROR"} if error else [({"service":"NAME", "url":"URL"})*]
   */
-  public Response getAuthUrl(String type);
+  public Response getAuthUrl();
 
   /**
   * Authentificate (return a token)

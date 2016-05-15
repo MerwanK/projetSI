@@ -184,12 +184,26 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject mkdir(String folder) {
-    //TODO parents + path
     String json=null;
     try {
+      synchronize();
+      String[] path = folder.split("/");
+
       JSONObject fileDesc = new JSONObject();
-      fileDesc.put("title", folder);
       fileDesc.put("mimeType", "application/vnd.google-apps.folder");
+      if(path.length != 1) {
+        folder = path[path.length-1];
+        String parent = "";
+        for(int i = 0; i < path.length-1; ++i) {
+          parent = path[i];
+        }
+        JSONArray parents = new JSONArray();
+        JSONObject pObj = new JSONObject();
+        pObj.put("id", this._IdToFile.get(this._pathToId.get(parent)).getId());
+        parents.put(pObj);
+        fileDesc.put("parents", parents);
+      }
+      fileDesc.put("title", folder);
       json = KiwiUtils.post("https://www.googleapis.com/drive/v2/files?access_token=" + _token, fileDesc);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
@@ -200,7 +214,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject removeFile(String file) {
-    //TODO path + clean err
+    //TODO don't file
     String json=null;
     try {
       this.synchronize();
@@ -217,7 +231,6 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject moveFile(String from, String to) {
-    //TODO get title + parent, then https://developers.google.com/drive/v2/reference/files/update#examples
     String json = null;
     try {
       this.synchronize();
@@ -243,8 +256,8 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       }
 
 
-        JSONObject fileDesc = new JSONObject();
-        fileDesc.put("title", newTitle);
+      JSONObject fileDesc = new JSONObject();
+      fileDesc.put("title", newTitle);
       json = KiwiUtils.put("https://www.googleapis.com/drive/v2/files/" + id +
       "?access_token=" + _token +
       "&addParents=" + newParent +
@@ -288,57 +301,70 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject tree() {
-    //TODO generate tree
-    String json=null;
+    JSONObject result = new JSONObject();
     try {
-      json = KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/files")
-      .append("?access_token=").append(_token)
-      .append("&spaces=drive")
-      .toString());
+      this.synchronize();
+      JSONArray files = new JSONArray();
+      for (String key : this._pathToId.keySet()) {
+        if(!key.equals("/")) {
+          JSONObject file = new JSONObject();
+          file.put("path", key);
+          files.put(file);
+        }
+      }
+      result.put("files", files);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "Can't build tree");
       return new JSONObject(jsonContent);
     }
-    return new JSONObject(json);
+    return result;
   }
 
   //TODO: more clever sync
   private void synchronize() {
-    JSONObject content = tree();
-    JSONArray items = content.getJSONArray("items");
-    this._IdToFile = new HashMap<String, GoogleFile>();
-    this._pathToId = new HashMap<String, String>();
-    for(int i = 0; i < items.length(); ++i) {
-      JSONObject item = items.getJSONObject(i);
-      String id = item.getString("id");
-      String title = item.getString("title");
-      String link = item.getString("alternateLink");
-      List<GoogleFolder> parents = new ArrayList<GoogleFolder>();
-      JSONArray parentsArray = item.getJSONArray("parents");
-      for(int j = 0; j < parentsArray.length(); ++j) {
-        JSONObject parent = parentsArray.getJSONObject(j);
-        parents.add(new GoogleFolder(parent.getString("id"),
-        parent.getBoolean("isRoot")));
-        if(parent.getBoolean("isRoot"))
-        this._pathToId.put("/", parent.getString("id"));
-      }
-      this._IdToFile.put(id, new GoogleFile(id, title, link, parents));
-    }
+    try{
+      JSONObject content = new JSONObject(KiwiUtils.get(new StringBuilder("https://www.googleapis.com/drive/v2/files")
+      .append("?access_token=").append(_token)
+      .append("&spaces=drive")
+      .toString()));
 
-    //Build path to id
-    for (String key : this._IdToFile.keySet()) {
-      GoogleFile gf = this._IdToFile.get(key);
-      String finalPath = gf.getTitle();
-      String id = gf.getId();
-      //TODO multi-parent
-      GoogleFolder parent = gf.getParents().get(0);
-      while(!parent.isRoot()) {
-        GoogleFile parentFile = this._IdToFile.get(parent.getId());
-        finalPath = parentFile.getTitle() + "/" + finalPath;
-        parent = parentFile.getParents().get(0);
+      JSONArray items = content.getJSONArray("items");
+      this._IdToFile = new HashMap<String, GoogleFile>();
+      this._pathToId = new HashMap<String, String>();
+      for(int i = 0; i < items.length(); ++i) {
+        JSONObject item = items.getJSONObject(i);
+        String id = item.getString("id");
+        String title = item.getString("title");
+        String link = item.getString("alternateLink");
+        List<GoogleFolder> parents = new ArrayList<GoogleFolder>();
+        JSONArray parentsArray = item.getJSONArray("parents");
+        for(int j = 0; j < parentsArray.length(); ++j) {
+          JSONObject parent = parentsArray.getJSONObject(j);
+          parents.add(new GoogleFolder(parent.getString("id"),
+          parent.getBoolean("isRoot")));
+          if(parent.getBoolean("isRoot"))
+          this._pathToId.put("/", parent.getString("id"));
+        }
+        this._IdToFile.put(id, new GoogleFile(id, title, link, parents));
       }
-      this._pathToId.put(finalPath, id);
+
+      //Build path to id
+      for (String key : this._IdToFile.keySet()) {
+        GoogleFile gf = this._IdToFile.get(key);
+        String finalPath = gf.getTitle();
+        String id = gf.getId();
+        //TODO multi-parent
+        GoogleFolder parent = gf.getParents().get(0);
+        while(!parent.isRoot()) {
+          GoogleFile parentFile = this._IdToFile.get(parent.getId());
+          finalPath = parentFile.getTitle() + "/" + finalPath;
+          parent = parentFile.getParents().get(0);
+        }
+        this._pathToId.put(finalPath, id);
+      }
+    } catch(Exception e) {
+      e.getMessage();
     }
   }
 

@@ -52,16 +52,18 @@ public class KiwiShare implements IKiwiShare {
 
   @GET
   @Path("authurl")
-  public Response getAuthUrl(@QueryParam("type") String type) {
-    if(type.equals("dropbox")) {
-      return Response.status(200).entity(_dropbox.getAuthUrl().toString()).build();
-    }
-    else if(type.equals("drive")) {
-      return Response.status(200).entity(_drive.getAuthUrl().toString()).build();
-    }
-    Map<String, String> jsonContent = new HashMap();
-    jsonContent.put("err", "unknown type");
-    JSONObject result = new JSONObject(jsonContent);
+  public Response getAuthUrl() {
+    //TODO for services.
+    JSONArray responses = new JSONArray();
+    JSONObject dropboxResponse = _dropbox.getAuthUrl();
+    dropboxResponse.put("service", "dropbox");
+    responses.put(dropboxResponse);
+    JSONObject driveResponse = _drive.getAuthUrl();
+    driveResponse.put("service", "drive");
+    responses.put(driveResponse);
+
+    JSONObject result = new JSONObject();
+    result.put("urls", responses);
     return Response.status(200).entity(result.toString()).build();
   }
 
@@ -156,12 +158,21 @@ public class KiwiShare implements IKiwiShare {
   @Path("/tree")
   @Override
   public Response tree() {
-    //https://www.dropbox.com/developers-v1/core/docs:/metadata
-    //https://developers.google.com/drive/v2/reference/files/list#try-it
-    //TODO: generate beautiful tree
     JSONObject result = new JSONObject();
-    result.put("dropbox", _dropbox.tree());
-    result.put("drive", _drive.tree());
+    JSONArray files = _dropbox.tree().getJSONArray("files");
+    JSONArray temp = _drive.tree().getJSONArray("files");
+    List<String> alreadyAdded = new ArrayList<String>();
+    for(int i = 0; i < files.length(); ++i) {
+      alreadyAdded.add(files.getJSONObject(i).getString("path"));
+    }
+    for(int i = 0; i < temp.length(); i++) {
+      String pathToAdd = temp.getJSONObject(i).getString("path");
+      if(!alreadyAdded.contains(pathToAdd)) {
+        files.put(temp.getJSONObject(i));
+        alreadyAdded.add(pathToAdd);
+      }
+    }
+    result.put("files", files);
     return Response.status(200).entity(result.toString()).build();
   }
 }
