@@ -64,7 +64,7 @@ mvn compile
 mvn jetty:run
 ```
 
-## URIs disponibles
+## Manipulation des services
 
 ### /authurl
 
@@ -830,5 +830,104 @@ Exemple :
     }, {
         "path": "generate/Screenshot from 2016-05-05 15-51-51.png"
     }]
+}
+```
+
+## Encrypt all the things!
+
+### /encrypt
+
+#### Description:
+
+Chiffre le contenu d'un fichier.
+
+#### URI:
+
+`http://localhost:8080/kiwiencrypt/encrypt`
+
+#### Methode:
+
+**POST**
+
+#### Paramètres:
+
+**name** = Paramètre utilisé en interne, à supprimer...<br>
+**file** en paramètre de la requête. Contient le contenu du fichier.<br>
+_Exemple_ : `curl -F "file=@/home/AmarOk/main.cpp" http://localhost:8080/kiwiencrypt/encrypt?name=temp`
+
+#### Retour:
+
+Le fichier chiffré. Exemple :
+
+```text
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1
+
+hQIMA5SXZViidrq2AQ//Y9kD/uOTKM2VJ+kGrd5VypbG0HmF1XACWo1cYYTefZ5A
+mxdfvol8BMNafmTc5hjk1DKfypGGAOix2h7kwg/WKf3w+qJoZ/n6PT9WTrWMm7eN
+2TxmYGM+XNNfNsPr8NTQ8tuge/0Bs74LXE/CrGi2i7IRU7IpDTGSghEXAGtVIa9V
+Xl0iF9AZlX2fy53b4IqpwNQ8iQDKELOKDMycVF0oObkDYslvoMpoN4FnVMUulG6g
+Mt4MYJC2y3hWLC+GgaeHi4VGjzV/K6tPOZvODrneTVgaVPsB0r3im56pJYkZVsOZ
+cDsR1ZUNrAOV3LYcPHC2yQAZqJhdwwBSt9tHoRPfmjIU5ycl3Ciil7BSHdbrRtxC
+axy6u3NFNM7D/7sw106sDGwTksGbqwkj3tJ9bjqPw+QKSIm4AIprnze013OVi6QL
+i0q8rsBhPYq4f58LP4alQvAesBnNmzIyGzZNDNfnmphWeHNt0EzqiNG9dRRqOnmM
+IIxvbjmrqV8yp3VmSPtXCwGRrTtQra4xCX5zmgE/Ii8qmINS9Di08zE8U0uPrwVF
+WLj4Nie86jeGlxKEzLA7ZPTR4w0SRMVuxYLqjZSp/l6GvRYthepx+vUI3lT/38Uv
+ah8Hk5ShvR+jB7dMmHyQlQLO8eosmLMIMcEpv2IlhRGLdVQDzswBq1V722H3GpTS
+6QEhdi4jRPvdIyKFKGoZKP5uc+2d8mIDQER7/W3+ivRUVak17VUublTMYOknuwCz
+12/7YoVF0cgfRzqAoAaGCl4O+Vscj2FYmrMg6ahJ4av32LXX/z4PBwGXeMlVX2BA
+5VWMPjXPTlyUx6cYRvqR8zSqPuyD1C3JXSaipzuE95x/YWC5clYA3QOfVERWjJkR
+lJZdpyFYfUtg4af1mJlOEdZz+5UO51GCwoy0efh9IIqdeVvsSCCgv1Qf83b6UTZ7
+d5DIXGCMA6wKbreMM7+nu4AEHOC7qcakj1H7wxWYHQTU8hQ3OdoYGi4OYYZnw/3X
+8nSFUJqBlWXUxJLkLG8ehaXemj4BIrLUJ5MMmpW+lOBMpUU7KvapIvEg7kjL/B5q
+L+D1wdvmgTHn5mAK6N7mKuEYm7MaMgrO5QEK/t656ZWS1Uel8AXEVTYDXJoRcvQb
+etRMsM45y7hfnxiFg8lVjXSZm2wolRkZRrO6jSyyNqLkNXw6GhuygsyZOoN5xt/B
+TU8oglSa7/IeeE8fKzheANy89SPo11o6t7ByDI1i2eAW8DcCaWJw37MJCdoLK7Pm
+jemLu57hWQEE/9aayXNtQEQpE2tUhB6aPx+X9QmQicsK4fyacNfjIcIWtS+nZUtM
+GGtni4GG5UneZON3sEprkMmxn480ja32tZAkqjX6E+JswEr0/pNWQBedhsz4yqxK
+3QS3IH/tVXWY3GyU4Ne5fqpLPBBmzGQ5vDB3DQDO18c6tk6ANDpx1SjoBDhAZ9iz
+Bt2wGmj3lfWNZOFlr46kX38Ruo+fJN3ITN1/8QdajrRs9QlSz2i4WNPb7PWrOIoP
+1w8IGVdp6aW0Tk6M3k9kvB1Eq8OpLbVpYzPx2+2ogWU/FEFAb3fQrwUDEXPHRe3d
+8JILS1WeMmZKePQ1Mb4l3z9NzG3nZA40SnAfPlyZyTezVUXhJCQYoey/2ciQfyyp
+ZrvMWV2XwAoSmKoWKztuhQpa32rXkdFh8pWZ61yobytKRoFnnhQjoQpqUtQGOYlp
+rwE49S6M3sUywdbbvg==
+=lVuZ
+-----END PGP MESSAGE-----
+```
+
+### /decrypt
+
+#### Description:
+
+Déchiffre le contenu d'un fichier.
+
+#### URI:
+
+`http://localhost:8080/kiwiencrypt/decrypt`
+
+#### Methode:
+
+**POST**
+
+#### Paramètres:
+
+**name** = Paramètre utilisé en interne, à supprimer...<br>
+**file** en paramètre de la requête. Contient le contenu du fichier.<br>
+_Exemple_ : `curl -F "file=@/home/AmarOk/main.gpg" http://localhost:8080/kiwiencrypt/decrypt?name=temp`
+
+#### Retour:
+
+Le fichier déchiffré. Exemple :
+
+```text
+#include <stdlib.h>
+#include <iostream>
+
+int main() {
+    int a = 0;
+    // Will the next line be executed????????????????/
+    a++;
+    std::cout << a << std::endl;
+    return 0;
 }
 ```
