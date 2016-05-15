@@ -198,13 +198,13 @@ public JSONObject getSpaceInfo() {
 }
 
 public JSONObject mkdir(String folder) {
-  //TODO A folder is a file with the MIME type application/vnd.google-apps.folder and with no extension.
+  //TODO parents + path
   String json=null;
   try {
-    json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(_token)
-    .append("&root=auto")
-    .append("&path=").append(folder)
-    .toString());
+    JSONObject fileDesc = new JSONObject();
+    fileDesc.put("title", folder);
+    fileDesc.put("mimeType", "application/vnd.google-apps.folder");
+    json = KiwiUtils.post("https://www.googleapis.com/drive/v2/files?access_token=" + _token, fileDesc);
   } catch (Exception e) {
     Map<String, String> jsonContent = new HashMap();
     jsonContent.put("err", "Unable to parse json " + json );

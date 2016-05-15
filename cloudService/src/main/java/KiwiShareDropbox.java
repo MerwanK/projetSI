@@ -133,6 +133,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     return result;
   }
 
+//TODO
   public JSONObject sendFile(InputStream toUpload, String destination) {
     String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -186,7 +187,6 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   }
 
   public JSONObject mkdir(String folder) {
-    //TODO better path
     String json=null;
     try {
       json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(_token)

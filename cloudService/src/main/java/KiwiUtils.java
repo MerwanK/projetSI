@@ -89,6 +89,16 @@ public class KiwiUtils {
     return execute(request);
   }
 
+  // makes a POST request to url with form parameters and returns body as a string
+  public static String post(String url, JSONObject content) throws ClientProtocolException, IOException {
+    HttpPost request = new HttpPost(url);
+    request.setHeader("Accept", "application/json");
+    request.setHeader("Content-type", "application/json; charset=UTF-8");
+    HttpEntity ent = new StringEntity(content.toString());
+    request.setEntity(ent);
+    return execute(request);
+  }
+
   // makes request and checks response code for 200
   public static String execute(HttpRequestBase request) throws ClientProtocolException, IOException {
     DefaultHttpClient httpClient = new DefaultHttpClient();
