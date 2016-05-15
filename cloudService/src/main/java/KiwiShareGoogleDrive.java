@@ -8,6 +8,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.client.ClientProtocolException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,14 +47,16 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   private String _secret = null;
   private String _callbackUrl = null;
   private String _token;
-  private Map<String, GoogleFile> _fileToId = null;
+  private Map<String, GoogleFile> _IdToFile = null;
+  private Map<String, String> _pathToId = null;
 
   private KiwiShareGoogleDrive() {
     JSONObject obj = new JSONObject(KiwiUtils.readFile("drive.config"));
     _key = obj.getString("app_key");
     _secret = obj.getString("app_secret");
     _callbackUrl = obj.getString("callback_url");
-    this._fileToId = new HashMap<String, GoogleFile>();
+    this._IdToFile = new HashMap<String, GoogleFile>();
+    this._pathToId = new HashMap<String, String>();
   }
 
   public static KiwiShareGoogleDrive getInstance() {
@@ -120,7 +125,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   public JSONObject getFileInfo(String file) {
     //TODO check path & parents
     this.synchronize();
-    String filename = this._fileToId.get(file).getId();
+    String filename = this._pathToId.get(file);
     Map<String, String> jsonContent = new HashMap();
     String json=null;
     try {
@@ -199,7 +204,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     String json=null;
     try {
       this.synchronize();
-      String idToDelete = _fileToId.get(file).getId();
+      String idToDelete = this._pathToId.get(file);
       json = KiwiUtils.delete(new StringBuilder("https://www.googleapis.com/drive/v2/files/").append(idToDelete)
       .append("?access_token=").append(_token)
       .toString());
@@ -213,13 +218,39 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
 
   public JSONObject moveFile(String from, String to) {
     //TODO get title + parent, then https://developers.google.com/drive/v2/reference/files/update#examples
-    String json=null;
+    String json = null;
     try {
-      json = KiwiUtils.post("https://api.dropboxapi.com/1/fileops/move", ImmutableMap.<String,String>builder()
-      .put("root", "auto")
-      .put("from_path", from)
-      .put("to_path", to)
-      .put("access_token", _token).build());//TODO token here  ?
+      this.synchronize();
+      String id = this._pathToId.get(from);
+      String actualParent = "";
+      String[] path = from.split("/");
+      if(path.length == 1)
+      actualParent = _pathToId.get("/");
+      else
+      actualParent = _pathToId.get(path[path.length-2]);
+
+
+      String newParent = "";
+      String newTitle = "";
+      path = to.split("/");
+      if(path.length == 1) {
+        newParent = _pathToId.get("/");
+        newTitle = to;
+      }
+      else {
+        newParent = _pathToId.get(path[path.length-2]);
+        newTitle = path[path.length-1];
+      }
+
+
+        JSONObject fileDesc = new JSONObject();
+        fileDesc.put("title", newTitle);
+      json = KiwiUtils.put("https://www.googleapis.com/drive/v2/files/" + id +
+      "?access_token=" + _token +
+      "&addParents=" + newParent +
+      "&removeParents=" + actualParent,
+      fileDesc
+      );
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
@@ -233,7 +264,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     String json = null;
     try {
       this.synchronize();
-      String idToShare = _fileToId.get(file).getId();
+      String idToShare = this._pathToId.get(file);
       JSONObject permDesc = new JSONObject();
       permDesc.put("role", "owner");
       permDesc.put("type", "anyone");
@@ -246,7 +277,8 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       return new JSONObject(jsonContent);*/
     }
     try {
-      result.put("link", _fileToId.get(file).getLink());
+      String id = this._pathToId.get(file);
+      result.put("link", _IdToFile.get(id).getLink());
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "File not found: " + file );
@@ -275,7 +307,8 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   private void synchronize() {
     JSONObject content = tree();
     JSONArray items = content.getJSONArray("items");
-    this._fileToId = new HashMap<String, GoogleFile>();
+    this._IdToFile = new HashMap<String, GoogleFile>();
+    this._pathToId = new HashMap<String, String>();
     for(int i = 0; i < items.length(); ++i) {
       JSONObject item = items.getJSONObject(i);
       String id = item.getString("id");
@@ -287,8 +320,25 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
         JSONObject parent = parentsArray.getJSONObject(j);
         parents.add(new GoogleFolder(parent.getString("id"),
         parent.getBoolean("isRoot")));
+        if(parent.getBoolean("isRoot"))
+        this._pathToId.put("/", parent.getString("id"));
       }
-      this._fileToId.put(title, new GoogleFile(id, title, link, parents));
+      this._IdToFile.put(id, new GoogleFile(id, title, link, parents));
+    }
+
+    //Build path to id
+    for (String key : this._IdToFile.keySet()) {
+      GoogleFile gf = this._IdToFile.get(key);
+      String finalPath = gf.getTitle();
+      String id = gf.getId();
+      //TODO multi-parent
+      GoogleFolder parent = gf.getParents().get(0);
+      while(!parent.isRoot()) {
+        GoogleFile parentFile = this._IdToFile.get(parent.getId());
+        finalPath = parentFile.getTitle() + "/" + finalPath;
+        parent = parentFile.getParents().get(0);
+      }
+      this._pathToId.put(finalPath, id);
     }
   }
 
