@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.StringEntity;
@@ -73,6 +74,11 @@ public class KiwiUtils {
   // makes a GET request to url and returns body as a string
   public static String get(String url) throws ClientProtocolException, IOException {
     return execute(new HttpGet(url));
+  }
+
+  // makes a DELETE request to url and returns body as a string
+  public static String delete(String url) throws ClientProtocolException, IOException {
+    return execute(new HttpDelete(url));
   }
 
   // makes a POST request to url with form parameters and returns body as a string

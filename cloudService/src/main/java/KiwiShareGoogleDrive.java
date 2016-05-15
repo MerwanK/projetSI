@@ -214,19 +214,20 @@ public JSONObject mkdir(String folder) {
 }
 
 public JSONObject removeFile(String file) {
-  //TODO DELETE  /files/fileId
-  String json=null;
+  //TODO path + clean err
   try {
-    json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(_token)
-    .append("&root=auto")
-    .append("&path=").append(file)
+    this.synchronize();
+    String idToDelete = _fileToId.get(file).getId();
+    String json=null;
+    json = KiwiUtils.delete(new StringBuilder("https://www.googleapis.com/drive/v2/files/").append(idToDelete)
+    .append("?access_token=").append(_token)
     .toString());
   } catch (Exception e) {
     Map<String, String> jsonContent = new HashMap();
     jsonContent.put("err", "Unable to parse json " + json );
     return new JSONObject(jsonContent);
   }
-  return new JSONObject(json);
+  return new JSONObject("{}");
 }
 
 public JSONObject moveFile(String from, String to) {
