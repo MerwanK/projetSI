@@ -11,6 +11,9 @@ import javax.ws.rs.core.Response;
 import org.apache.http.client.ClientProtocolException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.io.File;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -20,6 +23,7 @@ import java.io.PrintWriter;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.Header;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -140,9 +144,14 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     StringBuilder result = new StringBuilder();
     try {
       HttpPut putRequest = new HttpPut(url);
-      StringEntity input;
+      FileEntity input;
       try {
-        input = new StringEntity(new String(IOUtils.toByteArray(toUpload)));
+        File file = new File(destination); //TODO remove ?
+        OutputStream outputStream = new FileOutputStream(file);
+        IOUtils.copy(toUpload, outputStream);
+        outputStream.close();
+        input = new FileEntity(file);
+        file.delete();
       } catch (Exception e) {
         Map<String, String> jsonContent = new HashMap();
         jsonContent.put("err", e.getMessage());
