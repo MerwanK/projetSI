@@ -25,7 +25,7 @@ print(
 
 p = subprocess.Popen("curl http://localhost:8080/kiwishare/mkdir?path=demoMv", shell=True, stdout=subprocess.PIPE)
 p.wait()
-p = subprocess.Popen("curl http://localhost:8080/kiwishare/mv?from="+ remoteTXT + "&to=" + remoteMvTXT, shell=True, stdout=subprocess.PIPE)
+p = subprocess.Popen("curl http://localhost:8080/kiwishare/mv?from="+ remoteTXT + "\&to=" + remoteMvTXT, shell=True, stdout=subprocess.PIPE)
 p.wait()
 
 print("Move " + remoteTXT + " to " + remoteMvTXT)
