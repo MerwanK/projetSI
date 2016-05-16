@@ -35,7 +35,7 @@ public interface IKiwiShare {
   /**
   * Send a file
   */
-  public Response sendFile(InputStream file, String destination, String type);
+  public Response sendFile(InputStream file, String destination);
 
   /**
   * Share a file

@@ -143,24 +143,37 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     return new JSONObject(json);
   }
 
-
-
-
-  public JSONObject sendFile(InputStream toUpload, String destination, String contentType) {
-    //TODO
+  public JSONObject sendFile(InputStream toUpload, String destination) {
     String json=null;
     try {
-      Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Not yet implemented" );
-      json = new JSONObject(jsonContent).toString();
-      /*JSONObject fileDesc = new JSONObject();
+      this.synchronize();
+      String parent = "";
+      String title = "";
+      String[] path = destination.split("/");
+      if(path.length == 1) {
+        parent = this._pathToId.get("/");
+        title = destination;
+      }
+      else {
+        String pathP = "";
+        for(int i = 0; i <= path.length-2; ++i) {
+          if(i != 0) pathP += "/";
+          pathP += path[i];
+        }
+        parent = this._pathToId.get(pathP);
+        title = path[path.length-1];
+      }
+
+      JSONObject fileDesc = new JSONObject();
       fileDesc.put("title", destination);
-      json = KiwiUtils.post("https://www.googleapis.com/upload/drive/v2/files?uploadType=media", ImmutableMap.<String,String>builder()
-      .put("Host", "www.googleapis.com")
-      .put("Content-Type", contentType)
-      .put("Content-Length", new Integer(toUpload.available()).toString())
-      .put("Authorization", "Bearer "+ _token).build(),
-      IOUtils.toString(toUpload));*/
+      JSONArray parents = new JSONArray();
+      JSONObject pObj = new JSONObject();
+      pObj.put("id", parent);
+      parents.put(pObj);
+      fileDesc.put("parents", parents);
+      fileDesc.put("title", title);
+      json = KiwiUtils.postMultipart("https://www.googleapis.com/upload/drive/v2/files?uploadType=multipart&access_token="+_token, fileDesc,
+      toUpload);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
@@ -251,7 +264,12 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
         newTitle = to;
       }
       else {
-        newParent = _pathToId.get(path[path.length-2]);
+        String pathP = "";
+        for(int i = 0; i <= path.length-2; ++i) {
+          if(i != 0) pathP += "/";
+          pathP += path[i];
+        }
+        newParent = this._pathToId.get(pathP);
         newTitle = path[path.length-1];
       }
 

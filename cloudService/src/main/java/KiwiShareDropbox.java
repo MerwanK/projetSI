@@ -134,7 +134,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   }
 
   //TODO check img ? else content type
-  public JSONObject sendFile(InputStream toUpload, String destination, String contentType) {
+  public JSONObject sendFile(InputStream toUpload, String destination) {
     String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
@@ -142,7 +142,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       HttpPut putRequest = new HttpPut(url);
       StringEntity input;
       try {
-        input = new StringEntity(IOUtils.toString(toUpload));
+        input = new StringEntity(new String(IOUtils.toByteArray(toUpload)));
       } catch (Exception e) {
         Map<String, String> jsonContent = new HashMap();
         jsonContent.put("err", e.getMessage());

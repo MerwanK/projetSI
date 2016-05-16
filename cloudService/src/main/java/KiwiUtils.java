@@ -2,8 +2,10 @@ package kiwishare;
 
 import org.apache.http.client.ClientProtocolException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
+import org.apache.commons.io.IOUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileReader;
@@ -11,9 +13,11 @@ import java.io.PrintWriter;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.ContentType;
 import org.apache.http.Header;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
 import java.util.ArrayList;
@@ -118,6 +122,20 @@ public class KiwiUtils {
     return execute(request);
   }
 
+
+  public static String postMultipart(String url, JSONObject fileDesc, InputStream body) throws ClientProtocolException, IOException {
+    HttpPost request = new HttpPost(url);
+
+    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+    builder.addTextBody("file", fileDesc.toString(), ContentType.APPLICATION_JSON);
+    builder.addBinaryBody("file", body);
+    HttpEntity multipart = builder.build();
+
+    request.setEntity(multipart);
+
+    return execute(request);
+  }
+
   // makes a POST request to url with form parameters and returns body as a string
   public static String post(String url, JSONObject content) throws ClientProtocolException, IOException {
     HttpPost request = new HttpPost(url);
@@ -135,6 +153,10 @@ public class KiwiUtils {
 
     HttpEntity entity = response.getEntity();
     String body = EntityUtils.toString(entity);
+
+    /*System.out.println("##########################");
+    System.out.println(response.toString());
+    System.out.println(body);*/
 
     if (response.getStatusLine().getStatusCode() != 200) {
       throw new RuntimeException("Expected 200 but got " + response.getStatusLine().getStatusCode() + ", with body " + body);

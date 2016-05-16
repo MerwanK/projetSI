@@ -13,10 +13,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.http.client.ClientProtocolException;
 import java.io.IOException;
+import org.apache.commons.io.IOUtils;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -95,10 +97,17 @@ public class KiwiShare implements IKiwiShare {
   @Path("/put")
   @Override
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response sendFile(@FormDataParam("file") InputStream file, @QueryParam("path") String destination, @QueryParam("type") String type) {
+  public Response sendFile(@FormDataParam("file") InputStream file, @QueryParam("path") String destination) {
     JSONObject result = new JSONObject();
-    result.put("dropbox", _dropbox.sendFile(file, destination, type));
-    result.put("drive", _drive.sendFile(file, destination, type));
+    try {
+      byte[] byteArray = IOUtils.toByteArray(file);
+      InputStream inputDrop = new ByteArrayInputStream(byteArray);
+      InputStream inputDrive = new ByteArrayInputStream(byteArray);
+      result.put("dropbox", _dropbox.sendFile(inputDrop, destination));
+      result.put("drive", _drive.sendFile(inputDrive, destination));
+    } catch (Exception e) {
+      result.put("err", e.getMessage());
+    }
     return Response.status(200).entity(result.toString()).build();
   }
 
