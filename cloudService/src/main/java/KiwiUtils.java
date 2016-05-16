@@ -181,7 +181,7 @@ public class KiwiUtils {
     String body = EntityUtils.toString(entity);
 
     if (response.getStatusLine().getStatusCode() != 200) {
-      throw new RuntimeException("Expected 200 but got " + response.getStatusLine().getStatusCode() + ", with body " + body);
+      throw new RuntimeException(body);
     }
 
     return body;

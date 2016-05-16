@@ -211,6 +211,10 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       .append("&root=auto")
       .append("&path=").append(folder)
       .toString());
+    } catch (RuntimeException e) {
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Can't create dir " + folder + ". Already exists?");
+      return new JSONObject(jsonContent);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );
@@ -220,16 +224,20 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   }
 
   public JSONObject removeFile(String file) {
-    //TODO don't fail
     String json=null;
     try {
       json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(_token)
       .append("&root=auto")
       .append("&path=").append(file)
       .toString());
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "Can't find file  " + file);
+      return new JSONObject(jsonContent);
+    }
+    catch (Exception e) {
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "service not connected?");
       return new JSONObject(jsonContent);
     }
     return new JSONObject(json);
@@ -242,7 +250,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       .put("root", "auto")
       .put("from_path", from)
       .put("to_path", to)
-      .put("access_token", _token).build());//TODO token here  ?
+      .put("access_token", _token).build());
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json );

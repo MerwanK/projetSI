@@ -150,30 +150,10 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       this.synchronize();
       String parent = "";
       String title = "";
-      //Get parents TODO move to method ?
-      String[] path = destination.split("/");
-      if(path.length == 1) {
-        parent = this._pathToId.get("/");
-        title = destination;
-      }
-      else {
-        String pathP = "";
-        for(int i = 0; i <= path.length-2; ++i) {
-          if(i != 0) pathP += "/";
-          pathP += path[i];
-        }
-        parent = this._pathToId.get(pathP);
-        title = path[path.length-1];
-      }
-      //Create a file desc JSONObject TODO move to method ?
-      JSONObject fileDesc = new JSONObject();
-      fileDesc.put("title", destination);
-      JSONArray parents = new JSONArray();
-      JSONObject pObj = new JSONObject();
-      pObj.put("id", parent);
-      parents.put(pObj);
-      fileDesc.put("parents", parents);
-      fileDesc.put("title", title);
+
+      Map<String, String> infoPath = getInfoFromPath(destination);
+      //Create a file desc JSONObject
+      JSONObject fileDesc = createJSONdesc(infoPath.get("filename"), infoPath.get("directParent"), null);
       json = KiwiUtils.postMultipart("https://www.googleapis.com/upload/drive/v2/files?uploadType=multipart&access_token="+_token, fileDesc,
       toUpload);
     } catch (Exception e) {
@@ -202,34 +182,23 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     String json=null;
     try {
       this.synchronize();
-      String[] path = folder.split("/");
 
-      JSONObject fileDesc = new JSONObject();
-      fileDesc.put("mimeType", "application/vnd.google-apps.folder");
-      if(path.length != 1) {
-        folder = path[path.length-1];
-        String parent = "";
-        for(int i = 0; i < path.length-1; ++i) {
-          parent = path[i];
-        }
-        JSONArray parents = new JSONArray();
-        JSONObject pObj = new JSONObject();
-        pObj.put("id", this._IdToFile.get(this._pathToId.get(parent)).getId());
-        parents.put(pObj);
-        fileDesc.put("parents", parents);
-      }
-      fileDesc.put("title", folder);
+      Map<String, String> infoPath = getInfoFromPath(folder);
+      JSONObject fileDesc = createJSONdesc(infoPath.get("filename"), infoPath.get("directParent"), "application/vnd.google-apps.folder");
       json = KiwiUtils.post("https://www.googleapis.com/drive/v2/files?access_token=" + _token, fileDesc);
+    } catch (RuntimeException e) {
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Can't create dir " + folder + ". Already exists?");
+      return new JSONObject(jsonContent);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "service not connected?");
       return new JSONObject(jsonContent);
     }
     return new JSONObject(json);
   }
 
   public JSONObject removeFile(String file) {
-    //TODO don't fail
     String json=null;
     try {
       this.synchronize();
@@ -237,9 +206,11 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       json = KiwiUtils.delete(new StringBuilder("https://www.googleapis.com/drive/v2/files/").append(idToDelete)
       .append("?access_token=").append(_token)
       .toString());
+    } catch (RuntimeException e) {
+      return new JSONObject("{}"); //Ok the file is deleted (Yeap the API of google drive is...)
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "service not connected?");
       return new JSONObject(jsonContent);
     }
     return new JSONObject("{}");
@@ -250,34 +221,15 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     try {
       this.synchronize();
       String id = this._pathToId.get(from);
-      String actualParent = "";
-      String[] path = from.split("/");
-      if(path.length == 1)
-      actualParent = _pathToId.get("/");
-      else
-      actualParent = _pathToId.get(path[path.length-2]);
+      String actualParent = getInfoFromPath(from).get("directParent");
 
 
-      String newParent = "";
-      String newTitle = "";
-      path = to.split("/");
-      if(path.length == 1) {
-        newParent = _pathToId.get("/");
-        newTitle = to;
-      }
-      else {
-        String pathP = "";
-        for(int i = 0; i <= path.length-2; ++i) {
-          if(i != 0) pathP += "/";
-          pathP += path[i];
-        }
-        newParent = this._pathToId.get(pathP);
-        newTitle = path[path.length-1];
-      }
+      Map<String, String> infoPath = getInfoFromPath(to);
+      String newParent = infoPath.get("directParent");
+      String newTitle = infoPath.get("filename");
 
 
-      JSONObject fileDesc = new JSONObject();
-      fileDesc.put("title", newTitle);
+      JSONObject fileDesc = createJSONdesc(newTitle, null, null);
       json = KiwiUtils.put("https://www.googleapis.com/drive/v2/files/" + id +
       "?access_token=" + _token +
       "&addParents=" + newParent +
@@ -303,11 +255,13 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       permDesc.put("type", "anyone");
       json = KiwiUtils.post(new StringBuilder("https://www.googleapis.com/drive/v2/files/").append(idToShare)
       .append("/permissions?access_token=").append(_token)
-      .toString(), permDesc);//TODO not break !
+      .toString(), permDesc);
+    } catch (RuntimeException ignore) {
+
     } catch (Exception e) {
-      /*Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
-      return new JSONObject(jsonContent);*/
+      Map<String, String> jsonContent = new HashMap();
+      jsonContent.put("err", "Unable to parse json " + json + e.getMessage());
+      return new JSONObject(jsonContent);
     }
     try {
       String id = this._pathToId.get(file);
@@ -339,6 +293,49 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       return new JSONObject(jsonContent);
     }
     return result;
+  }
+
+  /**
+  * Split path into (filename, directParent, parentPath)
+  **/
+  private Map<String, String> getInfoFromPath(String pathToFile) {
+    Map<String, String> result = new HashMap<String, String>();
+    String[] path = pathToFile.split("/");
+    if(path.length == 1) {
+      result.put("filename", pathToFile);
+      result.put("directParent", this._pathToId.get("/"));
+      result.put("parentPath", "/");
+    }
+    else {
+      String pathP = "";
+      for(int i = 0; i <= path.length-2; ++i) {
+        if(i != 0) pathP += "/";
+        pathP += path[i];
+      }
+      result.put("filename", path[path.length-1]);
+      result.put("directParent", this._pathToId.get(pathP));
+      result.put("parentPath", pathP);
+    }
+    return result;
+  }
+
+  /**
+  * Create a file description JSON for google drive
+  **/
+  private JSONObject createJSONdesc(String title, String idParent, String mimeType) {
+    JSONObject fileDesc = new JSONObject();
+    fileDesc.put("title", title);
+    if(mimeType != null) {
+      fileDesc.put("mimeType", mimeType);
+    }
+    if(idParent != null) {
+      JSONArray parents = new JSONArray();
+      JSONObject pObj = new JSONObject();
+      pObj.put("id", idParent);
+      parents.put(pObj);
+      fileDesc.put("parents", parents);
+    }
+    return fileDesc;
   }
 
   //TODO: more clever sync
