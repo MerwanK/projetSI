@@ -1,5 +1,171 @@
 # Documentation de la partie serveur
 
+- [Documentation de la partie serveur](#documentation-de-la-partie-serveur)
+
+  - [Structure](#structure)
+  - [Outils utilisés](#outils-utiliss)
+  - [Fonctionnalités](#fonctionnalits)
+  - [TODOList](#todolist)
+  - [Configuration d'une instance](#configuration-dune-instance)
+
+    - [Dropbox](#dropbox)
+    - [Drive](#drive)
+    - [GPG](#gpg)
+
+  - [Lancement d'une instance](#lancement-dune-instance)
+
+  - [Manipulation des services](#manipulation-des-services)
+
+    - [/authurl](#authurl)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/get](#get)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Paramètres](#paramtres)
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/put](#put)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Paramètres:](#paramtres)
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/info](#info)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/mkdir](#mkdir)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+
+    - [Paramètres:](#paramtres)
+
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/rm](#rm)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+
+    - [Paramètres:](#paramtres)
+
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/mv](#mv)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+
+    - [Paramètres:](#paramtres)
+
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/share](#share)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+
+    - [Paramètres:](#paramtres)
+
+      - [Methode:](#methode)
+      - [Retour:](#retour)
+
+    - [/tree](#tree)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Methode:](#methode)
+      - [Paramètres:](#paramtres)
+      - [Retour:](#retour)
+
+  - [Encrypt all the things!](#encrypt-all-the-things)
+
+    - [/encrypt](#encrypt)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Methode:](#methode)
+      - [Paramètres:](#paramtres)
+      - [Retour:](#retour)
+
+    - [/decrypt](#decrypt)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Methode:](#methode)
+      - [Paramètres:](#paramtres)
+      - [Retour:](#retour)
+
+  - [Demos](#demos)
+
+    - [Outils nécessaires](#outils-ncessaires)
+    - [Processus de tests](#processus-de-tests)
+
+  - [Note](#note)
+
+  - [Licence](#licence)
+
+## Structure
+
+Ce fichier documente le dossier /cloudService. Dedans, vous pouvez trouver :
+
+- **demos/** Les scripts pythons pour tester le bon fonctionnement de votre back-end
+
+  - **rsc/** Des fichiers utilisés pendant les demos
+
+- **src/main/java** Le code source du projet
+
+- **src/main/webapp** La configuration de la webapp
+
+- **target/** Le dossier où se trouvent les fichier générés à la compilation
+
+- _drive.config_, _dropbox.config_, _gpg.config_ Les fichiers de configuration du back-end
+
+- _pom.xml_ La configuration de _Maven_
+
+## Outils utilisés
+
+Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents_, _Maven_ et _GnuPG_ ont été utilisés.
+
+## Fonctionnalités
+
+- Obtention des adresses d'authentification
+- Authentification de l'utilisateur via callback
+- Gestion des services _Google Drive_ et _Dropbox_
+- Récupération des informations d'un fichier
+- Ajout d'un fichier
+- Déplacement d'un fichier
+- Suppression d'un fichier
+- Récupération des infos des services
+- Gestion de la hiérarchie des fichiers sur les différents services (communes ou non)
+- Création de répertoires
+- Partage de fichier
+- Chiffrement de fichiers
+- Déchiffrement de fichiers
+
+## TODOList
+
+- Mise en place de _TravisCI_
+- Ajout d'un service _Framadrive (Owncloud)_
+- Gestion des versions de fichiers
+- _Google drive_ gestions de parents multiples
+
 ## Configuration d'une instance
 
 ### Dropbox
@@ -1030,3 +1196,36 @@ int main() {
     return 0;
 }
 ```
+
+## Demos
+
+### Outils nécessaires
+
+- Les bibliothèques python _json_, _subprocess_
+- _cURL_, _python3_
+
+### Processus de tests
+
+1. Vérifier que la configuration du service est correcte et que vous avez bien les outils nécessaires
+2. Lancer l'instance et générez des tokens pour les différents services
+3. Lancez les tests `python3 monTest.py`
+
+## Note
+
+La principale difficulté de ce projet était que l'API de _google drive_ est juste pourrie. L'interface de la console est juste illisible et pas pratique et la génération de token plante énormément sans raison (_erreur interne au serveur_).
+
+## Licence
+
+DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE Version 2, December 2004
+
+Copyright (C) 2004 Sam Hocevar [sam@hocevar.net](mailto:sam@hocevar.net)
+
+Everyone is permitted to copy and distribute verbatim or modified copies of this license document, and changing it is allowed as long as the name is changed.
+
+```
+  DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+```
+
+TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+1. You just DO WHAT THE FUCK YOU WANT TO.
