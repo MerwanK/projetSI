@@ -948,7 +948,6 @@ Chiffre le contenu d'un fichier.
 
 #### Paramètres:
 
-**name** = Paramètre utilisé en interne, à supprimer...<br>
 **file** en paramètre de la requête. Contient le contenu du fichier.<br>
 _Exemple_ : `curl -F "file=@/home/AmarOk/main.cpp" http://localhost:8080/kiwiencrypt/encrypt?name=temp`
 
@@ -1008,7 +1007,6 @@ Déchiffre le contenu d'un fichier.
 
 #### Paramètres:
 
-**name** = Paramètre utilisé en interne, à supprimer...<br>
 **file** en paramètre de la requête. Contient le contenu du fichier.<br>
 _Exemple_ : `curl -F "file=@/home/AmarOk/main.gpg" http://localhost:8080/kiwiencrypt/decrypt?name=temp`
 

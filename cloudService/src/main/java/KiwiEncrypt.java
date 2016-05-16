@@ -46,6 +46,7 @@ import java.text.ParseException;
 import org.json.*;
 import com.google.common.collect.ImmutableMap;
 import com.sun.jersey.multipart.FormDataParam;
+import java.util.UUID;
 
 @Path("/kiwiencrypt")
 public class KiwiEncrypt {
@@ -53,8 +54,9 @@ public class KiwiEncrypt {
   @POST
   @Path("/encrypt")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response encrypt(@FormDataParam("file") InputStream file, @QueryParam("name") String name) {
+  public Response encrypt(@FormDataParam("file") InputStream file) {
     String result = "";
+    String name = UUID.randomUUID().toString();
     try {
       Process p;
 
@@ -86,9 +88,9 @@ public class KiwiEncrypt {
 @POST
 @Path("/decrypt")
 @Consumes(MediaType.MULTIPART_FORM_DATA)
-//TODO remove name param
-public Response decrypt(@FormDataParam("file") InputStream file, @QueryParam("name") String name) {
+public Response decrypt(@FormDataParam("file") InputStream file) {
   Response ok = null;
+  String name = UUID.randomUUID().toString();
   try {
     Process p;
 
