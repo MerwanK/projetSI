@@ -1,52 +1,57 @@
 package kiwishare;
 
+import com.google.common.collect.ImmutableMap;
+import com.sun.jersey.multipart.FormDataParam;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.apache.http.client.ClientProtocolException;
-import java.io.IOException;
 import org.apache.commons.io.IOUtils;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.FileReader;
-import java.io.PrintWriter;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.Header;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
-import java.text.ParseException;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.*;
-import com.google.common.collect.ImmutableMap;
-import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/kiwishare")
 public class KiwiShare implements IKiwiShare {
   private KiwiShareDropbox     _dropbox = null;
   private KiwiShareGoogleDrive _drive = null;  //TODO change MAP<String, IKiwiShare>
 
+  /**
+   * Init services
+   **/
   public KiwiShare() {
     _dropbox = KiwiShareDropbox.getInstance();
     _drive = KiwiShareGoogleDrive.getInstance();
@@ -55,7 +60,7 @@ public class KiwiShare implements IKiwiShare {
   @GET
   @Path("authurl")
   public Response getAuthUrl() {
-    //TODO for services.
+    //TODO foreach services.
     JSONArray responses = new JSONArray();
     JSONObject dropboxResponse = _dropbox.getAuthUrl();
     dropboxResponse.put("service", "dropbox");
@@ -100,6 +105,7 @@ public class KiwiShare implements IKiwiShare {
   public Response sendFile(@FormDataParam("file") InputStream file, @QueryParam("path") String destination) {
     JSONObject result = new JSONObject();
     try {
+      //Clone InputStream (if not, we can't send to multiples services)
       byte[] byteArray = IOUtils.toByteArray(file);
       InputStream inputDrop = new ByteArrayInputStream(byteArray);
       InputStream inputDrive = new ByteArrayInputStream(byteArray);
@@ -171,6 +177,7 @@ public class KiwiShare implements IKiwiShare {
     JSONArray files = _dropbox.tree().getJSONArray("files");
     JSONArray temp = _drive.tree().getJSONArray("files");
     if(merge != null && (merge.equals("true") || merge.equals("1"))) {
+      //Merge the 2 JSONArray objects
       List<String> alreadyAdded = new ArrayList<String>();
       for(int i = 0; i < files.length(); ++i) {
         alreadyAdded.add(files.getJSONObject(i).getString("path"));

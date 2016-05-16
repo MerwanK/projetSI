@@ -1,49 +1,52 @@
 package kiwishare;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 
-import org.apache.http.client.ClientProtocolException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
-import java.io.File;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.FileReader;
-import java.io.PrintWriter;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.Header;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import java.text.ParseException;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.*;
-import com.google.common.collect.ImmutableMap;
-import java.util.UUID;
 
 public class KiwiShareDropbox implements IServiceEndpoint {
 
+  //Singleton to save the token
   private static volatile KiwiShareDropbox _instance = null;
   private String _key = null;
   private String _secret = null;
@@ -96,7 +99,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     }
     else {
       try {
-
+        //Get an access_token
         body = KiwiUtils.post("https://api.dropboxapi.com/1/oauth2/token", ImmutableMap.<String,String>builder()
         .put("code", code)
         .put("client_id", _key)
@@ -138,15 +141,16 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     return result;
   }
 
-  //TODO check img ? else content type
   public JSONObject sendFile(InputStream toUpload, String destination) {
     String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
+    //Create a file to upload (server-side) to convert InputStream into FileEntity
     String fname = UUID.randomUUID().toString();
     File file = null;
     try {
       HttpPut putRequest = new HttpPut(url);
+      //Create the FileEntity
       FileEntity input;
       try {
         file = new File(fname);
@@ -156,16 +160,18 @@ public class KiwiShareDropbox implements IServiceEndpoint {
         input = new FileEntity(file);
       } catch (Exception e) {
         Map<String, String> jsonContent = new HashMap();
-        jsonContent.put("err1", e.getMessage());
+        jsonContent.put("err", e.getMessage());
         return new JSONObject(jsonContent);
       }
       putRequest.setEntity(input);
+      //Upload file
       HttpResponse response = httpClient.execute(putRequest);
       if (response.getStatusLine().getStatusCode() != 200) {
         Map<String, String> jsonContent = new HashMap();
-        jsonContent.put("err2", new Integer(response.getStatusLine().getStatusCode()).toString());
+        jsonContent.put("err", new Integer(response.getStatusLine().getStatusCode()).toString());
         return new JSONObject(jsonContent);
       }
+      //Get response
       BufferedReader br = new BufferedReader(new InputStreamReader(
       (response.getEntity().getContent())));
       String output;
@@ -175,7 +181,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       file.delete();
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err3", e.getMessage());
+      jsonContent.put("err", e.getMessage());
       return new JSONObject(jsonContent);
     }
 
@@ -259,6 +265,10 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     return new JSONObject(json);
   }
 
+  /**
+   * Get all path recursively
+   * This method is used by tree()
+   */
   private void mkPath(String currentPath, String url, JSONArray currentArray) {
     try {
       String json = KiwiUtils.get(url);
@@ -271,6 +281,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
           JSONObject fileToAdd = new JSONObject();
           String nxtPath = file.getString("path");
           fileToAdd.put("path", nxtPath.substring(1));
+          //If we find a dir, call mkPath
           if(file.getBoolean("is_dir"))
           {
             mkPath(nxtPath,
@@ -286,7 +297,6 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   }
 
   public JSONObject tree() {
-    //TODO beautiful tree
     String json=null;
     JSONObject result = new JSONObject();
     try {

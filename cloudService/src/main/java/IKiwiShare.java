@@ -3,11 +3,14 @@ package kiwishare;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
+/**
+ * Describes methods for the webservice
+ **/
 public interface IKiwiShare {
 
   /**
   * Get OAuth2 url
-  * @return {"err":"ERROR"} if error else [({"service":"NAME", "url":"URL"})*]
+  * @return [({"service":"NAME", "url":"URL"})*]
   */
   public Response getAuthUrl();
 
@@ -65,6 +68,7 @@ public interface IKiwiShare {
 
   /**
   * list files in directory
+  * @param: merge if "true" or "1", all path from services are merged.
   */
   public Response tree(String merge);
 

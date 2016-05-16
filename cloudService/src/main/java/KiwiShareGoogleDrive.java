@@ -1,54 +1,56 @@
 package kiwishare;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.http.client.ClientProtocolException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.FileReader;
-import java.io.PrintWriter;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.Header;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
-import java.text.ParseException;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.*;
-import com.google.common.collect.ImmutableMap;
 
 public class KiwiShareGoogleDrive implements IServiceEndpoint {
 
+  //Singleton to save token
   private static volatile KiwiShareGoogleDrive _instance = null;
   private String _key = null;
   private String _secret = null;
   private String _callbackUrl = null;
   private String _token;
-  private Map<String, GoogleFile> _IdToFile = null;
-  private Map<String, String> _pathToId = null;
+  private Map<String, GoogleFile> _IdToFile = null; //To transform an ID to a File with some infos
+  private Map<String, String> _pathToId = null; //To transform a path to an ID
 
   private KiwiShareGoogleDrive() {
     JSONObject obj = new JSONObject(KiwiUtils.readFile("drive.config"));
@@ -123,7 +125,6 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject getFileInfo(String file) {
-    //TODO check path & parents
     this.synchronize();
     String filename = this._pathToId.get(file);
     Map<String, String> jsonContent = new HashMap();
@@ -149,6 +150,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       this.synchronize();
       String parent = "";
       String title = "";
+      //Get parents TODO move to method ?
       String[] path = destination.split("/");
       if(path.length == 1) {
         parent = this._pathToId.get("/");
@@ -163,7 +165,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
         parent = this._pathToId.get(pathP);
         title = path[path.length-1];
       }
-
+      //Create a file desc JSONObject TODO move to method ?
       JSONObject fileDesc = new JSONObject();
       fileDesc.put("title", destination);
       JSONArray parents = new JSONArray();
@@ -199,7 +201,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   public JSONObject mkdir(String folder) {
     String json=null;
     try {
-      synchronize();
+      this.synchronize();
       String[] path = folder.split("/");
 
       JSONObject fileDesc = new JSONObject();
@@ -227,7 +229,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject removeFile(String file) {
-    //TODO don't file
+    //TODO don't fail
     String json=null;
     try {
       this.synchronize();
@@ -350,6 +352,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       JSONArray items = content.getJSONArray("items");
       this._IdToFile = new HashMap<String, GoogleFile>();
       this._pathToId = new HashMap<String, String>();
+      //Build IdToFile
       for(int i = 0; i < items.length(); ++i) {
         JSONObject item = items.getJSONObject(i);
         String id = item.getString("id");
@@ -367,12 +370,12 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
         this._IdToFile.put(id, new GoogleFile(id, title, link, parents));
       }
 
-      //Build path to id
+      //Build pathToId
       for (String key : this._IdToFile.keySet()) {
         GoogleFile gf = this._IdToFile.get(key);
         String finalPath = gf.getTitle();
         String id = gf.getId();
-        //TODO multi-parent
+        //TODO multi-parent ?
         GoogleFolder parent = gf.getParents().get(0);
         while(!parent.isRoot()) {
           GoogleFile parentFile = this._IdToFile.get(parent.getId());
@@ -386,7 +389,9 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     }
   }
 
-
+  /**
+  * This class is used to describe a file
+  **/
   private class GoogleFile {
     private String _id = null;
     private String _title = null;
@@ -406,7 +411,9 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     public List<GoogleFolder> getParents() { return this._parents; }
   }
 
-
+  /**
+  * This class is used to describe a directory
+  **/
   private class GoogleFolder {
     private String _id = null;
     private boolean _isRoot = false;
@@ -417,7 +424,6 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     }
 
     public String getId() { return this._id; }
-
     public boolean isRoot() { return _isRoot; }
   }
 }
