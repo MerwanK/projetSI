@@ -40,6 +40,7 @@ import org.apache.http.entity.StringEntity;
 import java.text.ParseException;
 import org.json.*;
 import com.google.common.collect.ImmutableMap;
+import java.util.UUID;
 
 public class KiwiShareDropbox implements IServiceEndpoint {
 
@@ -142,25 +143,27 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
+    String fname = UUID.randomUUID().toString();
+    File file = null;
     try {
       HttpPut putRequest = new HttpPut(url);
       FileEntity input;
       try {
-        File file = new File(destination); //TODO remove ?
+        file = new File(fname);
         OutputStream outputStream = new FileOutputStream(file);
         IOUtils.copy(toUpload, outputStream);
         outputStream.close();
         input = new FileEntity(file);
       } catch (Exception e) {
         Map<String, String> jsonContent = new HashMap();
-        jsonContent.put("err", e.getMessage());
+        jsonContent.put("err1", e.getMessage());
         return new JSONObject(jsonContent);
       }
       putRequest.setEntity(input);
       HttpResponse response = httpClient.execute(putRequest);
       if (response.getStatusLine().getStatusCode() != 200) {
         Map<String, String> jsonContent = new HashMap();
-        jsonContent.put("err", new Integer(response.getStatusLine().getStatusCode()).toString());
+        jsonContent.put("err2", new Integer(response.getStatusLine().getStatusCode()).toString());
         return new JSONObject(jsonContent);
       }
       BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -169,9 +172,10 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       while ((output = br.readLine()) != null) {
         result.append(output);
       }
+      file.delete();
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", e.getMessage());
+      jsonContent.put("err3", e.getMessage());
       return new JSONObject(jsonContent);
     }
 
