@@ -38,14 +38,6 @@ Le chiffrement des fichiers est réalisé à l'aide de GnuPG. Vous devez donc l'
 gpg --gen-key
 ```
 
-Une fois votre clé créée, il faut rajouter ces 3 lignes au fichier _~/.gnupg/gpg.conf_ :
-
-```bash
-default-key IDDELACLE
-default-recipient some-user-id
-default-recipient-self
-```
-
 Vous pouvez ensuite créer le fichier de config comme il suit :
 
 ```json
@@ -53,6 +45,14 @@ Vous pouvez ensuite créer le fichier de config comme il suit :
   "gpg_key":"ID",
   "gpg_pass":"PASSPHRASE"
 }
+```
+
+De plus, vous n'êtes pas obligé de spécifier l'entrée _gpg_key_. Vous pouvez utiliser la clé par défaut de votre système. Il vous faut pour ceci rajouter ces 3 lignes au fichier _~/.gnupg/gpg.conf_ :
+
+```bash
+default-key IDDELACLE
+default-recipient some-user-id
+default-recipient-self
 ```
 
 ## Lancement d'une instance

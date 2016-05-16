@@ -63,7 +63,13 @@ public class KiwiEncrypt {
       File targetFile = new File(name);
 
       FileUtils.copyInputStreamToFile(file, targetFile);
-      String command = "gpg --default-recipient-self --encrypt --armor --sign --passphrase " + KiwiUtils.getInstance().getGpgSecret() + " " + name;
+      String command = "";
+      String pubKey = KiwiUtils.getInstance().getGpgKey();
+      String pass = KiwiUtils.getInstance().getGpgSecret();
+      if(pubKey != null)
+      command = "gpg --recipient " + pubKey + " --encrypt --armor --sign --passphrase " + pass + " " + name;
+      else
+      command = "gpg --default-recipient-self --encrypt --armor --sign --passphrase " + pass + " " + name;
       p = Runtime.getRuntime().exec(command);
       p.waitFor();
 
@@ -71,44 +77,44 @@ public class KiwiEncrypt {
 
       String line = "";
       while ((line = reader.readLine())!= null) {
-      result += line + "\n";
+        result += line + "\n";
+      }
+
+      File encryptedFile = new File(name+".asc");
+      targetFile.delete();
+      encryptedFile.delete();
+
+    } catch(Exception e) {
+      return Response.status(200).entity(e.getMessage()).build();
     }
-
-    File encryptedFile = new File(name+".asc");
-    targetFile.delete();
-    encryptedFile.delete();
-
-  } catch(Exception e) {
-    return Response.status(200).entity(e.getMessage()).build();
+    return Response.status(200).entity(result).build();
   }
-  return Response.status(200).entity(result).build();
-}
 
 
-@POST
-@Path("/decrypt")
-@Consumes(MediaType.MULTIPART_FORM_DATA)
-public Response decrypt(@FormDataParam("file") InputStream file) {
-  Response ok = null;
-  String name = UUID.randomUUID().toString();
-  try {
-    Process p;
+  @POST
+  @Path("/decrypt")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  public Response decrypt(@FormDataParam("file") InputStream file) {
+    Response ok = null;
+    String name = UUID.randomUUID().toString();
+    try {
+      Process p;
 
-    File targetFile = new File(name);
+      File targetFile = new File(name);
 
-    FileUtils.copyInputStreamToFile(file, targetFile);
-    String command = "gpg --batch --decrypt --passphrase " + KiwiUtils.getInstance().getGpgSecret() + " --output " + name + ".dec " + name;
-    p = Runtime.getRuntime().exec(command);
-    p.waitFor();
-    ok = Response.ok(new FileInputStream(name+".dec")).status(200).build();
+      FileUtils.copyInputStreamToFile(file, targetFile);
+      String command = "gpg --batch --decrypt --passphrase " + KiwiUtils.getInstance().getGpgSecret() + " --output " + name + ".dec " + name;
+      p = Runtime.getRuntime().exec(command);
+      p.waitFor();
+      ok = Response.ok(new FileInputStream(name+".dec")).status(200).build();
 
-    File decryptedFile = new File(name+".dec");
-    targetFile.delete();
-    decryptedFile.delete();
+      File decryptedFile = new File(name+".dec");
+      targetFile.delete();
+      decryptedFile.delete();
 
-  } catch(Exception e) {
-    return Response.status(200).entity(e.getMessage()).build();
+    } catch(Exception e) {
+      return Response.status(200).entity(e.getMessage()).build();
+    }
+    return ok;
   }
-  return ok;
-}
 }
