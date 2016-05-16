@@ -204,7 +204,104 @@ Des informations sur le fichier. Dans l'exemple suivant, le fichier n'existe que
 
 ### /put
 
-**TODO**
+#### Description:
+
+Envoie un fichier
+
+#### URI:
+
+`http://localhost:8080/kiwishare/put`
+
+#### Paramètres:
+
+**path**= le chemin de destination.<br>
+dans les headers : **file** le contenu du fichier.<br>
+_Exemple_ : `curl -F "file=@/home/AmarOk/main.cpp" http://localhost:8080/kiwishare/put?path=main.cpp`
+
+#### Methode:
+
+**POST**
+
+#### Retour:
+
+Exemple :
+
+```json
+{
+    "dropbox": {
+        "send": "{\"revision\": 68, \"bytes\": 182, \"thumb_exists\": false, \"rev\": \"44484e58e3\", \"modified\": \"Mon, 16 May 2016 11:15:58 +0000\", \"shareable\": false, \"mime_type\": \"text/x-c++src\", \"path\": \"/voila.cpp\", \"is_dir\": false, \"size\": \"182 bytes\", \"root\": \"dropbox\", \"client_mtime\": \"Mon, 16 May 2016 11:15:58 +0000\", \"icon\": \"page_white_code\"}"
+    },
+    "drive": {
+        "lastModifyingUserName": "Projet SI",
+        "shared": false,
+        "downloadUrl": "https://doc-08-6o-docs.googleusercontent.com/docs/securesc/0ihp9lv9fmpj0uolejr0nncm7av0o7fi/0huu4lbnclu67ukk47l7p43kn7ucrtdh/1463392800000/09758181586404959543/09758181586404959543/0B_i6_IkJyufEWHN3WXBqd3FlN2c?e=download&gd=true",
+        "owners": [{
+            "permissionId": "09758181586404959543",
+            "isAuthenticatedUser": true,
+            "emailAddress": "projetsi.drive@gmail.com",
+            "kind": "drive#user",
+            "displayName": "Projet SI"
+        }],
+        "mimeType": "application/octet-stream",
+        "title": "voila.cpp",
+        "quotaBytesUsed": "182",
+        "md5Checksum": "1d18732b31be7db4e9564123b59b325c",
+        "lastModifyingUser": {
+            "permissionId": "09758181586404959543",
+            "isAuthenticatedUser": true,
+            "emailAddress": "projetsi.drive@gmail.com",
+            "kind": "drive#user",
+            "displayName": "Projet SI"
+        },
+        "copyable": true,
+        "iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_10_generic_list.png",
+        "fileExtension": "cpp",
+        "alternateLink": "https://drive.google.com/file/d/0B_i6_IkJyufEWHN3WXBqd3FlN2c/view?usp=drivesdk",
+        "id": "0B_i6_IkJyufEWHN3WXBqd3FlN2c",
+        "modifiedByMeDate": "2016-05-16T11:16:00.282Z",
+        "lastViewedByMeDate": "2016-05-16T11:16:00.282Z",
+        "webContentLink": "https://docs.google.com/uc?id=0B_i6_IkJyufEWHN3WXBqd3FlN2c&export=download",
+        "writersCanShare": true,
+        "userPermission": {
+            "role": "owner",
+            "kind": "drive#permission",
+            "etag": "\"An1NegRH_Q1WfUh5qt1ofDI9qPI/DjK8DQKO9gmmMevZlNjBXL3ZC8Y\"",
+            "id": "me",
+            "type": "user",
+            "selfLink": "https://www.googleapis.com/drive/v2/files/0B_i6_IkJyufEWHN3WXBqd3FlN2c/permissions/me"
+        },
+        "kind": "drive#file",
+        "editable": true,
+        "ownerNames": ["Projet SI"],
+        "version": "300",
+        "selfLink": "https://www.googleapis.com/drive/v2/files/0B_i6_IkJyufEWHN3WXBqd3FlN2c",
+        "labels": {
+            "starred": false,
+            "hidden": false,
+            "restricted": false,
+            "viewed": true,
+            "trashed": false
+        },
+        "markedViewedByMeDate": "1970-01-01T00:00:00.000Z",
+        "appDataContents": false,
+        "explicitlyTrashed": false,
+        "createdDate": "2016-05-16T11:16:00.282Z",
+        "fileSize": "182",
+        "modifiedDate": "2016-05-16T11:16:00.282Z",
+        "spaces": ["drive"],
+        "etag": "\"An1NegRH_Q1WfUh5qt1ofDI9qPI/MTQ2MzM5NzM2MDI4Mg\"",
+        "originalFilename": "voila.cpp",
+        "parents": [{
+            "parentLink": "https://www.googleapis.com/drive/v2/files/0APi6_IkJyufEUk9PVA",
+            "isRoot": true,
+            "kind": "drive#parentReference",
+            "id": "0APi6_IkJyufEUk9PVA",
+            "selfLink": "https://www.googleapis.com/drive/v2/files/0B_i6_IkJyufEWHN3WXBqd3FlN2c/parents/0APi6_IkJyufEUk9PVA"
+        }],
+        "headRevisionId": "0B_i6_IkJyufEdzBvcFozS1dSaGFhcEJxT3A2RGJFUlMzWlJVPQ"
+    }
+}
+```
 
 ### /info
 

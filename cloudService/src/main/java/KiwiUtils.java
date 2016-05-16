@@ -154,10 +154,6 @@ public class KiwiUtils {
     HttpEntity entity = response.getEntity();
     String body = EntityUtils.toString(entity);
 
-    /*System.out.println("##########################");
-    System.out.println(response.toString());
-    System.out.println(body);*/
-
     if (response.getStatusLine().getStatusCode() != 200) {
       throw new RuntimeException("Expected 200 but got " + response.getStatusLine().getStatusCode() + ", with body " + body);
     }

@@ -98,13 +98,6 @@ public Response decrypt(@FormDataParam("file") InputStream file, @QueryParam("na
     String command = "gpg --batch --decrypt --passphrase " + KiwiUtils.getInstance().getGpgSecret() + " --output " + name + ".dec " + name;
     p = Runtime.getRuntime().exec(command);
     p.waitFor();
-/*
-    BufferedReader reader = new BufferedReader(new FileReader(name + ".dec"));
-
-    String line = "";
-    while ((line = reader.readLine())!= null) {
-      result += line + "\n";
-    }*/
     ok = Response.ok(new FileInputStream(name+".dec")).status(200).build();
 
     File decryptedFile = new File(name+".dec");

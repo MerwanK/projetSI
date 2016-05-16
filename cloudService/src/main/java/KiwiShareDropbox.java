@@ -151,7 +151,6 @@ public class KiwiShareDropbox implements IServiceEndpoint {
         IOUtils.copy(toUpload, outputStream);
         outputStream.close();
         input = new FileEntity(file);
-        file.delete();
       } catch (Exception e) {
         Map<String, String> jsonContent = new HashMap();
         jsonContent.put("err", e.getMessage());
