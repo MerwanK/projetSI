@@ -890,6 +890,10 @@ Obtient l'arborescence des fichiers de tous les services.
 
 **GET**
 
+#### Paramètres:
+
+**merge** (optionnel) Si on doit merger les résultats (1, true). Exemple `http://localhost:8080/kiwishare/tree?merge=true`.
+
 #### Retour:
 
 Exemple :

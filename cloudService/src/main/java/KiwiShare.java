@@ -166,22 +166,27 @@ public class KiwiShare implements IKiwiShare {
   @GET
   @Path("/tree")
   @Override
-  public Response tree() {
+  public Response tree(@QueryParam("merge") String merge) {
     JSONObject result = new JSONObject();
     JSONArray files = _dropbox.tree().getJSONArray("files");
     JSONArray temp = _drive.tree().getJSONArray("files");
-    List<String> alreadyAdded = new ArrayList<String>();
-    for(int i = 0; i < files.length(); ++i) {
-      alreadyAdded.add(files.getJSONObject(i).getString("path"));
-    }
-    for(int i = 0; i < temp.length(); i++) {
-      String pathToAdd = temp.getJSONObject(i).getString("path");
-      if(!alreadyAdded.contains(pathToAdd)) {
-        files.put(temp.getJSONObject(i));
-        alreadyAdded.add(pathToAdd);
+    if(merge != null && (merge.equals("true") || merge.equals("1"))) {
+      List<String> alreadyAdded = new ArrayList<String>();
+      for(int i = 0; i < files.length(); ++i) {
+        alreadyAdded.add(files.getJSONObject(i).getString("path"));
       }
+      for(int i = 0; i < temp.length(); i++) {
+        String pathToAdd = temp.getJSONObject(i).getString("path");
+        if(!alreadyAdded.contains(pathToAdd)) {
+          files.put(temp.getJSONObject(i));
+          alreadyAdded.add(pathToAdd);
+        }
+      }
+      result.put("files", files);
+    } else {
+      result.put("dropbox", files);
+      result.put("drive", temp);
     }
-    result.put("files", files);
     return Response.status(200).entity(result.toString()).build();
   }
 }

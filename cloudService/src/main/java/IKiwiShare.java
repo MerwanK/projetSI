@@ -66,6 +66,6 @@ public interface IKiwiShare {
   /**
   * list files in directory
   */
-  public Response tree();
+  public Response tree(String merge);
 
 }
