@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
@@ -85,8 +86,9 @@ public class KiwiEncrypt {
 @POST
 @Path("/decrypt")
 @Consumes(MediaType.MULTIPART_FORM_DATA)
+//TODO remove name param
 public Response decrypt(@FormDataParam("file") InputStream file, @QueryParam("name") String name) {
-  String result = "";
+  Response ok = null;
   try {
     Process p;
 
@@ -96,13 +98,14 @@ public Response decrypt(@FormDataParam("file") InputStream file, @QueryParam("na
     String command = "gpg --batch --decrypt --passphrase " + KiwiUtils.getInstance().getGpgSecret() + " --output " + name + ".dec " + name;
     p = Runtime.getRuntime().exec(command);
     p.waitFor();
-
+/*
     BufferedReader reader = new BufferedReader(new FileReader(name + ".dec"));
 
     String line = "";
     while ((line = reader.readLine())!= null) {
       result += line + "\n";
-    }
+    }*/
+    ok = Response.ok(new FileInputStream(name+".dec")).status(200).build();
 
     File decryptedFile = new File(name+".dec");
     targetFile.delete();
@@ -111,6 +114,6 @@ public Response decrypt(@FormDataParam("file") InputStream file, @QueryParam("na
   } catch(Exception e) {
     return Response.status(200).entity(e.getMessage()).build();
   }
-  return Response.status(200).entity(result).build();
+  return ok;
 }
 }
