@@ -1,0 +1,5 @@
+language: java
+script:
+  # Build server side
+  - sh -c 'cd cloudService && mvn compile'
+  # TODO output
