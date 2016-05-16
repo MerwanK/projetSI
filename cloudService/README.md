@@ -164,7 +164,7 @@ Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents
 - Mise en place de _TravisCI_
 - Ajout d'un service _Framadrive (Owncloud)_
 - Gestion des versions de fichiers
-- _Google drive_ gestions de parents multiples
+- _Google drive_ gestion de parents multiples
 
 ## Configuration d'une instance
 
