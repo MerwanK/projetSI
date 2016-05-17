@@ -5,44 +5,22 @@ import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class KiwiShareDropbox implements IServiceEndpoint {
 
@@ -61,7 +39,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   }
 
   public static KiwiShareDropbox getInstance() {
-    if(_instance == null) {
+    if (_instance == null) {
       synchronized (KiwiShareDropbox.class) {
         _instance =  new KiwiShareDropbox();
       }
@@ -72,35 +50,35 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   public JSONObject getAuthUrl() {
     Map<String, String> jsonContent = new HashMap();
 
-    if(_key == null)
-    {
+    if (_key == null) {
       jsonContent.put("err", "incorrect config (app_key)");
-    } else if(_secret == null) {
+    } else if (_secret == null) {
       jsonContent.put("err", "incorrect config (app_secret)");
-    } else if(_callbackUrl == null) {
+    } else if (_callbackUrl == null) {
       jsonContent.put("err", "incorrect config (callback_url)");
     } else {
-      String url = "https://www.dropbox.com/1/oauth2/authorize?response_type=code&" +
-      "client_id=" + _key +
-      "&redirect_uri=" + _callbackUrl;
+      String url =
+      "https://www.dropbox.com/1/oauth2/authorize?response_type=code&"
+      + "client_id=" + _key
+      + "&redirect_uri=" + _callbackUrl;
       jsonContent.put("url", url);
     }
 
     return new JSONObject(jsonContent);
   }
 
-  public JSONObject authentificate(String code, String error) {
+  public JSONObject authentificate(final String code, final String error) {
     Map<String, String> jsonContent = new HashMap();
 
     String body = null;
     String accessToken = null;
     if (error != null) {
       jsonContent.put("err", error);
-    }
-    else {
+    } else {
       try {
         //Get an access_token
-        body = KiwiUtils.post("https://api.dropboxapi.com/1/oauth2/token", ImmutableMap.<String,String>builder()
+        body = KiwiUtils.post("https://api.dropboxapi.com/1/oauth2/token",
+        ImmutableMap.<String, String>builder()
         .put("code", code)
         .put("client_id", _key)
         .put("client_secret", _secret)
@@ -120,10 +98,12 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     return new JSONObject(jsonContent);
   }
 
-  public JSONObject getFileInfo(String file) {
+  public JSONObject getFileInfo(final String file) {
     JSONObject result = null;
     try {
-      String url = new StringBuilder("https://content.dropboxapi.com/1/files/auto/"+file+"?access_token=").append(_token)      .toString();
+      String url =
+      new StringBuilder("https://content.dropboxapi.com/1/files/auto/"
+      + file + "?access_token=").append(_token).toString();
       HttpGet request = new HttpGet(url);
       DefaultHttpClient httpClient = new DefaultHttpClient();
       HttpResponse response = httpClient.execute(request);
@@ -131,21 +111,25 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       HttpEntity entity = response.getEntity();
       String downloadUrl = this.shareFile(file).getString("url");
 
-      result = new JSONObject(response.getFirstHeader("x-dropbox-metadata").getValue());
+      result = new JSONObject(response.getFirstHeader("x-dropbox-metadata")
+      .getValue());
       result.put("download_url", downloadUrl);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json ");
+      jsonContent.put("err", "Unable to parse json");
       return new JSONObject(jsonContent);
     }
     return result;
   }
 
-  public JSONObject sendFile(InputStream toUpload, String destination) {
-    String url = "https://content.dropboxapi.com/1/files_put/auto/" + destination + "?param=val&access_token=" + _token;
+  public JSONObject sendFile(final InputStream toUpload,
+                             final String destination) {
+    String url = "https://content.dropboxapi.com/1/files_put/auto/"
+    + destination + "?param=val&access_token=" + _token;
     DefaultHttpClient httpClient = new DefaultHttpClient();
     StringBuilder result = new StringBuilder();
-    //Create a file to upload (server-side) to convert InputStream into FileEntity
+    //Create a file to upload (server-side)
+    //to convert InputStream into FileEntity
     String fname = UUID.randomUUID().toString();
     File file = null;
     try {
@@ -166,9 +150,10 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       putRequest.setEntity(input);
       //Upload file
       HttpResponse response = httpClient.execute(putRequest);
-      if (response.getStatusLine().getStatusCode() != 200) {
+      if (response.getStatusLine().getStatusCode() != KiwiUtils.getOkStatus()) {
         Map<String, String> jsonContent = new HashMap();
-        jsonContent.put("err", new Integer(response.getStatusLine().getStatusCode()).toString());
+        jsonContent.put("err",
+        new Integer(response.getStatusLine().getStatusCode()).toString());
         return new JSONObject(jsonContent);
       }
       //Get response
@@ -192,9 +177,11 @@ public class KiwiShareDropbox implements IServiceEndpoint {
 
 
   public JSONObject getSpaceInfo() {
-    String json=null;
+    String json = null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/account/info?access_token=").append(_token)
+      json = KiwiUtils.get(
+      new StringBuilder("https://api.dropboxapi.com/1/account/info")
+      .append("?access_token=" + _token)
       .toString());
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
@@ -204,29 +191,34 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     return new JSONObject(json);
   }
 
-  public JSONObject mkdir(String folder) {
-    String json=null;
+  public JSONObject mkdir(final String folder) {
+    String json = null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?access_token=").append(_token)
+      json = KiwiUtils.get(
+      new StringBuilder("https://api.dropboxapi.com/1/fileops/create_folder?")
+      .append("access_token=" + _token)
       .append("&root=auto")
       .append("&path=").append(folder)
       .toString());
     } catch (RuntimeException e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Can't create dir " + folder + ". Already exists?");
+      jsonContent.put("err",
+      "Can't create dir " + folder + ". Already exists?");
       return new JSONObject(jsonContent);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "Unable to parse json " + json);
       return new JSONObject(jsonContent);
     }
     return new JSONObject(json);
   }
 
-  public JSONObject removeFile(String file) {
-    String json=null;
+  public JSONObject removeFile(final String file) {
+    String json = null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropbox.com/1/fileops/delete?access_token=").append(_token)
+      json = KiwiUtils.get(
+      new StringBuilder("https://api.dropbox.com/1/fileops/delete")
+      .append("?access_token=" + _token)
       .append("&root=auto")
       .append("&path=").append(file)
       .toString());
@@ -234,8 +226,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Can't find file  " + file);
       return new JSONObject(jsonContent);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "service not connected?");
       return new JSONObject(jsonContent);
@@ -243,60 +234,68 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     return new JSONObject(json);
   }
 
-  public JSONObject moveFile(String from, String to) {
-    String json=null;
+  public JSONObject moveFile(final String from, final String to) {
+    String json = null;
     try {
-      json = KiwiUtils.post("https://api.dropboxapi.com/1/fileops/move", ImmutableMap.<String,String>builder()
+      json = KiwiUtils.post("https://api.dropboxapi.com/1/fileops/move",
+      ImmutableMap.<String, String>builder()
       .put("root", "auto")
       .put("from_path", from)
       .put("to_path", to)
       .put("access_token", _token).build());
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "Unable to parse json " + json);
       return new JSONObject(jsonContent);
     }
     return new JSONObject(json);
   }
 
-  public JSONObject shareFile(String file) {
-    String json=null;
+  public JSONObject shareFile(final String file) {
+    String json = null;
     try {
-      json = KiwiUtils.get(new StringBuilder("https://api.dropboxapi.com/1/shares/auto/").append(file)
+      json = KiwiUtils.get(
+      new StringBuilder("https://api.dropboxapi.com/1/shares/auto/")
+      .append(file)
       .append("?access_token=").append(_token)
       .toString());
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "Unable to parse json " + json);
       return new JSONObject(jsonContent);
     }
     return new JSONObject(json);
   }
 
   /**
-   * Get all path recursively
-   * This method is used by tree()
+   * Get all path recursively.
+   * This method is used by tree().
+   * @param currentPath - the path to inspect
+   * @param url - the url to get informations about the currentPath
+   * @param currentArray the array to modify
    */
-  private void mkPath(String currentPath, String url, JSONArray currentArray) {
+  private void mkPath(final String currentPath,
+                      final String url,
+                      final JSONArray currentArray) {
     try {
       String json = KiwiUtils.get(url);
       JSONObject responseObj = new JSONObject(json);
 
-      if(responseObj.getBoolean("is_dir")) {
+      if (responseObj.getBoolean("is_dir")) {
         JSONArray sub = responseObj.getJSONArray("contents");
-        for(int i = 0; i < sub.length(); ++i) {
+        for (int i = 0; i < sub.length(); ++i) {
           JSONObject file = sub.getJSONObject(i);
           JSONObject fileToAdd = new JSONObject();
           String nxtPath = file.getString("path");
           fileToAdd.put("path", nxtPath.substring(1));
           //If we find a dir, call mkPath
-          if(file.getBoolean("is_dir"))
-          {
+          if (file.getBoolean("is_dir")) {
             mkPath(nxtPath,
-            new StringBuilder("https://api.dropboxapi.com/1/metadata/auto").append(nxtPath)
+            new StringBuilder("https://api.dropboxapi.com/1/metadata/auto")
+            .append(nxtPath)
             .append("?access_token=").append(_token)
             .toString()
-            ,currentArray);
+            , currentArray);
           }
           currentArray.put(fileToAdd);
         }
@@ -305,7 +304,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
   }
 
   public JSONObject tree() {
-    String json=null;
+    String json = null;
     JSONObject result = new JSONObject();
     try {
       JSONArray path = new JSONArray();
@@ -318,7 +317,7 @@ public class KiwiShareDropbox implements IServiceEndpoint {
       result.put("files", path);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
-      jsonContent.put("err", "Unable to parse json " + json );
+      jsonContent.put("err", "Unable to parse json " + json);
       return new JSONObject(jsonContent);
     }
     return result;
