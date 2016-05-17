@@ -6,7 +6,9 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>cloudService</name>
-  <url>http://maven.apache.org</url>
+  <url>https://github.com/MerwanK/projetSI/tree/master/cloudService</url>
+  <description>Ce projet est le back-end du projet Kiwi-share. Il a été réalisé pour le projet de JXS/JXW durant l'année d'ESIR2.</description>
+
   <properties>
     <project.build.sourceEncoding>
       UTF-8

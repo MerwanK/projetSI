@@ -141,7 +141,7 @@ Ce fichier documente le dossier /cloudService. Dedans, vous pouvez trouver :
 
 ## Outils utilisés
 
-Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents_, _Maven_ et _GnuPG_ ont été utilisés.
+Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents_, _Maven_ et _GnuPG_ ont été utilisés. De plus, les plugins _maven-checkstyle-plugin_ et _maven-javadoc-plugin_ ont été ajouté pour les rapports générés par `mvn site`
 
 ## Fonctionnalités
 
