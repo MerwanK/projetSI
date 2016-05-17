@@ -143,7 +143,7 @@ Ce fichier documente le dossier /cloudService. Dedans, vous pouvez trouver :
 
 ## Outils utilisés
 
-Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents_, _Maven_ et _GnuPG_ ont été utilisés. De plus, les plugins _maven-checkstyle-plugin_ et _maven-javadoc-plugin_ ont été ajouté pour les rapports générés par `mvn site`
+Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents_, _Maven_ et _GnuPG_ ont été utilisés. De plus, les plugins _maven-checkstyle-plugin_ et _maven-javadoc-plugin_ ont été ajouté pour les rapports générés par `mvn site`. Enfin _TravisCI_ a commencé a être mis en place.
 
 ## Fonctionnalités
 
@@ -160,10 +160,12 @@ Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents
 - Partage de fichier
 - Chiffrement de fichiers
 - Déchiffrement de fichiers
+- Support de TravisCI
+- Support de mvn site
 
 ## TODOList
 
-- Mise en place de _TravisCI_
+- Mise en place de _TravisCI_ (test + deploy)
 - Ajout d'un service _Framadrive (Owncloud)_
 - Gestion des versions de fichiers
 - _Google drive_ gestion de parents multiples
