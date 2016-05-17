@@ -96,6 +96,14 @@
       - [Paramètres:](#paramtres)
       - [Retour:](#retour)
 
+    - [/webHookDropbox](#webhookdropbox)
+
+      - [Description:](#description)
+      - [URI:](#uri)
+      - [Methode:](#methode)
+      - [Paramètres:](#paramtres)
+      - [Retour:](#retour)
+
   - [Encrypt all the things!](#encrypt-all-the-things)
 
     - [/encrypt](#encrypt)
@@ -143,7 +151,7 @@ Ce fichier documente le dossier /cloudService. Dedans, vous pouvez trouver :
 
 ## Outils utilisés
 
-Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents_, _Maven_ et _GnuPG_ ont été utilisés. De plus, les plugins _maven-checkstyle-plugin_ et _maven-javadoc-plugin_ ont été ajouté pour les rapports générés par `mvn site`. Enfin _TravisCI_ a commencé a être mis en place.
+Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents_, _Maven_ et _GnuPG_ ont été utilisés. De plus, les plugins _maven-checkstyle-plugin_ et _maven-javadoc-plugin_ ont été ajouté pour les rapports générés par `mvn site`. Enfin _TravisCI_ a commencé a être mis en place (<https://travis-ci.org/MerwanK/projetSI>).
 
 ## Fonctionnalités
 
@@ -162,13 +170,14 @@ Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents
 - Déchiffrement de fichiers
 - Support de TravisCI
 - Support de mvn site
+- Commencement du support du webhook de dropbox
 
 ## TODOList
 
 - Mise en place de _TravisCI_ (test + deploy)
 - Ajout d'un service _Framadrive (Owncloud)_
 - Gestion des versions de fichiers
-- _Google drive_ gestion de parents multiples
+- Webhooks
 
 ## Configuration d'une instance
 
@@ -184,7 +193,7 @@ Créez un fichier dropbox.config à la racine du projet. Il doit contenir :
 }
 ```
 
-N'oubliez pas de configurer votre application pour qu'elle accepte cette adresse de callback.
+N'oubliez pas de configurer votre application pour qu'elle accepte cette adresse de callback. Si vous voulez tester en local et que vous souhaitez faire fonctionner la partie webhook, il vous faudra ouvrir les ports (et configurer le webhook redirigeant vers votre ip depuis l'[interface](https://www.dropbox.com/developers/apps/))
 
 ### Drive
 
@@ -1104,6 +1113,29 @@ Exemple :
 }
 ```
 
+### /webHookDropbox
+
+#### Description:
+
+Reçoit en direct les notifications de dropbox. **NOTE**: Cette url n'est pas utilisé par le client. C'est ce qui sert pour la réception. La partie serveur qui renvoie les notifications via websocket au client n'a **pas** été développée.
+
+#### URI:
+
+`http://localhost:8080/kiwishare/webHookDropbox`
+
+### Paramètres:
+
+**challenge** = Le challenge à retourner pour accepter les notification.<br>
+Le contenu du body pour une requête POST est considérée comme la notification. Le header **X-Dropbox-Signature** contient le HmacSHA256 de la requête signée par la clé de Kiwishare.
+
+#### Methode:
+
+**GET** & **POST**
+
+#### Retour:
+
+Pour le moment rien. À terme, il faut mettre en place une websocket pour l'envoi des données. Si la signature est correcte on retourne les informations modifiées côté dropbox et {"err":"Incorrect key received"} si la signature n'est pas correcte.
+
 ## Encrypt all the things!
 
 ### /encrypt
@@ -1216,7 +1248,8 @@ int main() {
 
 ## Note
 
-La principale difficulté de ce projet était que l'API de _google drive_ est juste pourrie. L'interface de la console est juste illisible et pas pratique et la génération de token plante énormément sans raison (_erreur interne au serveur_).
+La principale difficulté de ce projet était que l'API de _google drive_ est juste pourrie. L'interface de la console est juste illisible et pas pratique et la génération de token plante énormément sans raison (_erreur interne au serveur_). Impossible de récupérer les informations pour le webhook de drive.<br>
+La seconde difficulté était que je n'avais pas la partie front-end pour mettre en place les web-sockets.
 
 ## Licence
 
