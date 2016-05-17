@@ -1,33 +1,32 @@
 <!doctype html>
-<html ng-app="MyAppClient" ng-strict-di>
+<html ng-app="KiwiShareClient" ng-strict-di>
 	<head>
 		<meta charset="UTF-8">
     	<title>MyAppClient</title>
     	<link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css"/>
   	</head>
-  	<body>
-  	<div ng-controller="TreeController">
+  <body>
+  	<div ng-app="KiwiShareClient" ng-controller="TreeController">
+  		{{greeting}}
  		<div ui-tree>
-  			<ol ui-tree-nodes="" ng-model="list">
-    			<li ng-repeat="item in list" ui-tree-node>
-      				<div ui-tree-handle>
-        				{{item.title}}
-      				</div>
-      			<ol ui-tree-nodes="" ng-model="item.items">
-        			<li ng-repeat="subItem in item.items" ui-tree-node>
-          				<div ui-tree-handle>
-            				{{subItem.title}}
-          				</div>
-        			</li>
-      			</ol>
-    			</li>
-  			</ol>
+  		<ol ui-tree-nodes="" ng-model="list">
+    		<li ng-repeat="item in list" ui-tree-node>
+      		<div ui-tree-handle>
+        		{{item.title}}
+      		</div>
+      	<ol ui-tree-nodes="" ng-model="item.items">
+        	<li ng-repeat="subItem in item.items" ui-tree-node>
+          	<div ui-tree-handle>
+            	{{subItem.title}}
+          	</div>
+        	</li>
+      	</ol>
+    		</li>
+  		</ol>
 		</div>
-	</div>
-	<script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
-	<script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
-    <script type="text/javascript">
-      	var MyAppClient = angular.module('MyAppClient', ['ui.tree'])
-    </script>
-  	</body>
+    </div>
+    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+    <script type="text/javascript" src="tree.js"></script>
+  </body>
 </html>
