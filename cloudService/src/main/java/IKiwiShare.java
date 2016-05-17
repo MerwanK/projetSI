@@ -32,43 +32,59 @@ public interface IKiwiShare {
 
   /**
   * Get info from a file
+  * @param file - the path to the file
+  * @return a json with the informations
   */
   public Response getFileInfo(String file);
 
   /**
   * Send a file
+  * @param file - the path to the file
+  * @param destination - the final path
+  * @return a json with the informations
   */
   public Response sendFile(InputStream file, String destination);
 
   /**
   * Share a file
+  * @param file - the path to the file
+  * @return a json with the informations
   */
   public Response shareFile(String file);
 
   /**
   * Get free space
+  * @return a json with the informations
   */
   public Response getSpaceInfo();
 
   /**
   * Move a file
   * Can also be used to rename a file
+  * @param from - the original path
+  * @param to - the final path
+  * @return a json with the informations
   */
   public Response moveFile(String from, String to);
 
   /**
   * Remove a file
+  * @param file - the final path
+  * @return a json with the informations
   */
   public Response removeFile(String file);
 
   /**
   * Make directory
+  * @param folder - the final path
+  * @return a json with the informations
   */
   public Response mkdir(String folder);
 
   /**
   * list files in directory
-  * @param: merge if "true" or "1", all path from services are merged.
+  * @param merge if "true" or "1", all path from services are merged.
+  * @return a json with the informations
   */
   public Response tree(String merge);
 

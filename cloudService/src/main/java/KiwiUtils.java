@@ -65,6 +65,8 @@ public class KiwiUtils {
 
   /**
    * Get the content of a file
+   * @param path the path of the file
+   * @return the content of the file
    **/
   public static String readFile(String path) {
     try {
@@ -86,6 +88,10 @@ public class KiwiUtils {
 
   /**
    * makes a GET request to url and returns body as a string
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param url
+   * @return the result of the execution of the GET request
    **/
   public static String get(String url) throws ClientProtocolException, IOException {
     return execute(new HttpGet(url));
@@ -93,6 +99,10 @@ public class KiwiUtils {
 
   /**
    * makes a DELETE request to url and returns body as a string
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param url
+   * @return the result of the execution of the DELETE request
    **/
   public static String delete(String url) throws ClientProtocolException, IOException {
     return execute(new HttpDelete(url));
@@ -100,6 +110,11 @@ public class KiwiUtils {
 
   /**
    * makes a PUT request to url with a body and returns body as a string
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param url
+   * @param content the json object for the body
+   * @return the result of the execution of the PUT request
    **/
   public static String put(String url, JSONObject content) throws ClientProtocolException, IOException {
     HttpPut request = new HttpPut(url);
@@ -112,6 +127,11 @@ public class KiwiUtils {
 
   /**
    * makes a POST request to url with form parameters and returns body as a string
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param url
+   * @param formParameters the headers
+   * @return the result of the execution of the POST request
    **/
   public static String post(String url, Map<String,String> formParameters) throws ClientProtocolException, IOException {
     HttpPost request = new HttpPost(url);
@@ -128,6 +148,12 @@ public class KiwiUtils {
 
   /**
    * makes a POST request to url with form parameters and body
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param url
+   * @param formParameters - the headers
+   * @param body - the body of the request
+   * @return the result of the execution of the POST request
    **/
   public static String post(String url, Map<String,String> formParameters, String body) throws ClientProtocolException, IOException {
     HttpPost request = new HttpPost(url);
@@ -144,6 +170,12 @@ public class KiwiUtils {
 
   /**
    * makes a POST request with a file in the body
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param url
+   * @param fileDesc - the description of the file
+   * @param body - the body of the request
+   * @return the result of the execution of the POST request
    **/
   public static String postMultipart(String url, JSONObject fileDesc, InputStream body) throws ClientProtocolException, IOException {
     HttpPost request = new HttpPost(url);
@@ -160,6 +192,11 @@ public class KiwiUtils {
 
   /**
    * makes a POST request to url with form parameters and returns body as a string
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param url
+   * @param content - the body of the request
+   * @return the result of the execution of the POST request
    **/
   public static String post(String url, JSONObject content) throws ClientProtocolException, IOException {
     HttpPost request = new HttpPost(url);
@@ -172,6 +209,10 @@ public class KiwiUtils {
 
   /**
    * makes request and checks response code for 200
+   * @throws ClientProtocolException
+   * @throws IOException
+   * @param request - the request to execute
+   * @return the result of the execution of the POST request
    **/
   public static String execute(HttpRequestBase request) throws ClientProtocolException, IOException {
     DefaultHttpClient httpClient = new DefaultHttpClient();
