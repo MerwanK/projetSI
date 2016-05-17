@@ -1,5 +1,7 @@
 # Documentation de la partie serveur
 
+**Travic CI** : ![https://travis-ci.org/MerwanK/projetSI.svg](https://travis-ci.org/MerwanK/projetSI.svg)
+
 - [Documentation de la partie serveur](#documentation-de-la-partie-serveur)
 
   - [Structure](#structure)
