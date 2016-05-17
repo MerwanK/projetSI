@@ -229,6 +229,6 @@ public class KiwiUtils {
   /**
   * @return KiwiUtils.getOkStatus() for Ok
   **/
-  public static int getOkStatus() { return KiwiUtils.getOkStatus(); }
+  public static int getOkStatus() { return 200; }
 
 }
