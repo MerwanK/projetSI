@@ -1,6 +1,6 @@
-var MyAppClient = angular.module('MyAppClient', ['ui.tree'])
+var KiwiShareClient = angular.module('KiwiShareClient', ['ui.tree'])
 
-MyAppClient.controller('TreeController', ['$scope', function($scope) {
+KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
   $scope.greeting = 'Hola!';
 }]);
 
