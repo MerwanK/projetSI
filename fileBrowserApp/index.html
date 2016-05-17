@@ -6,6 +6,7 @@
     	<link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css"/>
   	</head>
   <body>
+	<h1>Application KiwiShare</h1>
   	<div ng-app="KiwiShareClient" ng-controller="TreeController">
   		{{greeting}}
  		<div ui-tree>
@@ -28,5 +29,12 @@
     <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
     <script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
     <script type="text/javascript" src="tree.js"></script>
+	<p style="float:left;"> Autoriser l'application à accéder à Google Drive et DropBox : </p>
+	<a href="https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&client_id=462659653340-	ckldp4re47tg7slfj8q3tsvc6ur59657.apps.googleusercontent.com&redirect_uri=http://localhost:8080/kiwishare/callbackDrive">
+		<img src="images/logo-drive.png" alt="GDrive Logo" style="width:50px;height:50px;border:2px solid #021a40;margin-left:5px">
+	</a>
+	<a href="https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=n3ukjy5rxfu5dnc&redirect_uri=http://localhost:8080/kiwishare/callbackDropbox">
+		<img src="images/logo-dropbox.png" alt="Dropbox Logo" style="width:50px;height:50px;border:2px solid #021a40;">
+	</a>
   </body>
 </html>
