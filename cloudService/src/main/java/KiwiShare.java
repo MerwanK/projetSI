@@ -11,6 +11,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -61,6 +62,53 @@ public class KiwiShare implements IKiwiShare {
   }
 
   @GET
+  @Path("/webHookDropbox")
+  /**
+   * Test for weebhook from dropbox.
+   * Get challenge.
+   * @return the challenge
+   **/
+  public Response getWebHookDropbox(
+  @QueryParam("challenge") final String challenge) {
+    return Response.status(KiwiUtils.getOkStatus())
+          .entity(challenge).build();
+  }
+
+  @POST
+  @Path("/webHookDropbox")
+  /**
+   * Test for weebhook from dropbox.
+   * Get notification and verify the key.
+   * @param body the notification
+   * @param key the HmacSHA256 encoding of the body with the secret key from API
+   * @return the notification
+   **/
+  public Response webHookDropbox(String body,
+         @HeaderParam("X-Dropbox-Signature") final String key) {
+    if(key == null) {
+      //TODO remove println... Need a websocket
+      System.out.println("Incorrect key received... abort");
+      return Response.status(KiwiUtils.getOkStatus())
+           .entity("{\"err\":\"Incorrect key received\"}").build();
+    }
+    boolean correctKey = key.equals(KiwiUtils.HmacSHA256(
+    KiwiShareDropbox.getInstance().getSecret(),
+    body
+    ));
+    if(!correctKey) {
+      //TODO remove println... Need a websocket
+      System.out.println("Incorrect key received... abort");
+      return Response.status(KiwiUtils.getOkStatus())
+           .entity("{\"err\":\"Incorrect key received\"}").build();
+    }
+    //TODO Synchronize & Send to client websocket
+    System.out.println(body);
+    return Response.status(KiwiUtils.getOkStatus())
+           .entity(body).build();
+  }
+
+
+  @GET
   @Path("/callbackDrive")
   @Override
   public Response authentificateDrive(@QueryParam("code") final String code,
@@ -68,6 +116,8 @@ public class KiwiShare implements IKiwiShare {
     return Response.status(KiwiUtils.getOkStatus())
           .entity(_drive.authentificate(code, error).toString()).build();
   }
+
+  //TODO drive: https://developers.google.com/drive/v3/web/push#making-watch-requests
 
   @GET
   @Path("/get")

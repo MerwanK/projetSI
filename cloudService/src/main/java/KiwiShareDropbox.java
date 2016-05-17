@@ -47,6 +47,11 @@ public class KiwiShareDropbox implements IServiceEndpoint {
     return _instance;
   }
 
+  /**
+   * @return the secret key of kiwishare
+   **/
+  public final String getSecret() { return this._secret; }
+
   public JSONObject getAuthUrl() {
     Map<String, String> jsonContent = new HashMap();
 

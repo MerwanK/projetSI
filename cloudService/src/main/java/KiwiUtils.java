@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.binary.Hex;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -84,7 +88,7 @@ public class KiwiUtils {
   * @return the result of the execution of the GET request
   **/
   public static String get(final String url)
-                       throws IOException {
+  throws IOException {
     return execute(new HttpGet(url));
   }
 
@@ -95,7 +99,7 @@ public class KiwiUtils {
   * @return the result of the execution of the DELETE request
   **/
   public static String delete(final String url)
-                       throws IOException {
+  throws IOException {
     return execute(new HttpDelete(url));
   }
 
@@ -107,8 +111,8 @@ public class KiwiUtils {
   * @return the result of the execution of the PUT request
   **/
   public static String put(final String url,
-                           final JSONObject content)
-                           throws IOException {
+  final JSONObject content)
+  throws IOException {
     HttpPut request = new HttpPut(url);
     request.setHeader("Accept", "application/json");
     request.setHeader("Content-type", "application/json; charset=UTF-8");
@@ -125,8 +129,8 @@ public class KiwiUtils {
   * @return the result of the execution of the POST request
   **/
   public static String post(final String url,
-                            final Map<String, String> formParameters)
-                            throws IOException {
+  final Map<String, String> formParameters)
+  throws IOException {
     HttpPost request = new HttpPost(url);
     List <NameValuePair> nvps = new ArrayList <NameValuePair>();
 
@@ -148,9 +152,9 @@ public class KiwiUtils {
   * @return the result of the execution of the POST request
   **/
   public static String post(final String url,
-                            final Map<String, String> formParameters,
-                            final String body)
-                       throws IOException {
+  final Map<String, String> formParameters,
+  final String body)
+  throws IOException {
     HttpPost request = new HttpPost(url);
 
     for (String key : formParameters.keySet()) {
@@ -172,9 +176,9 @@ public class KiwiUtils {
   * @return the result of the execution of the POST request
   **/
   public static String postMultipart(final String url,
-                                     final JSONObject fileDesc,
-                                     final InputStream body)
-                       throws IOException {
+  final JSONObject fileDesc,
+  final InputStream body)
+  throws IOException {
     HttpPost request = new HttpPost(url);
 
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -230,5 +234,25 @@ public class KiwiUtils {
   * @return KiwiUtils.getOkStatus() for Ok
   **/
   public static int getOkStatus() { return 200; }
+
+  /**
+  * Encode in HmacSHA256.
+  * @param key the key for encoding
+  * @param data the data to encode
+  * @return the string encoded
+  **/
+  public static String HmacSHA256(String key, String data) {
+    String result = "";
+    try {
+      Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+      SecretKeySpec secret_key = new SecretKeySpec(
+      key.getBytes("UTF-8"), "HmacSHA256");
+      sha256_HMAC.init(secret_key);
+      result = Hex.encodeHexString(sha256_HMAC.doFinal(data.getBytes("UTF-8")));
+    } catch (Exception e) {
+      return "err: " + e.getMessage();
+    }
+    return result;
+  }
 
 }

@@ -48,6 +48,11 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     return _instance;
   }
 
+  /**
+  * @return the secret key of kiwishare
+  **/
+  public final String getSecret() { return this._secret; }
+
   public JSONObject getAuthUrl() {
     Map<String, String> jsonContent = new HashMap();
 
@@ -127,7 +132,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   }
 
   public JSONObject sendFile(final InputStream toUpload,
-                             final String destination) {
+  final String destination) {
     String json = null;
     try {
       this.synchronize();
@@ -180,7 +185,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     } catch (RuntimeException e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err",
-                      "Can't create dir " + folder + ". Already exists?");
+      "Can't create dir " + folder + ". Already exists?");
       return new JSONObject(jsonContent);
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
@@ -228,7 +233,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
       + "&addParents=" + newParent
       + "&removeParents=" + actualParent,
       fileDesc
-    );
+      );
     } catch (Exception e) {
       Map<String, String> jsonContent = new HashMap();
       jsonContent.put("err", "Unable to parse json " + json);
@@ -324,8 +329,8 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   * @return a JSON which describes the file
   **/
   private JSONObject createJSONdesc(final String title,
-                                    final String idParent,
-                                    final String mimeType) {
+  final String idParent,
+  final String mimeType) {
     JSONObject fileDesc = new JSONObject();
     fileDesc.put("title", title);
     if (mimeType != null) {
@@ -401,7 +406,7 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
     private List<GoogleFolder> _parents = null;
 
     public GoogleFile(final String id, final String title,
-                      final String link, final List<GoogleFolder> parents) {
+    final String link, final List<GoogleFolder> parents) {
       this._id = id;
       this._title = title;
       this._link = link;
