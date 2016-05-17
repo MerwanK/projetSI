@@ -1,5 +1,5 @@
 language: java
 script:
   # Build server side
-  - sh -c 'cd cloudService && mvn compile'
+  - sh -c 'cd cloudService && mvn compile && mvn site'
   # TODO output
