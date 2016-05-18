@@ -53,6 +53,11 @@ public class KiwiShareGoogleDrive implements IServiceEndpoint {
   **/
   public final String getSecret() { return this._secret; }
 
+  /**
+  * @return the token of kiwishare
+  **/
+  public final String getToken() { return this._token; }
+
   public JSONObject getAuthUrl() {
     Map<String, String> jsonContent = new HashMap();
 

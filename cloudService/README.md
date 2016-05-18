@@ -13,6 +13,7 @@
     - [Dropbox](#dropbox)
     - [Drive](#drive)
     - [GPG](#gpg)
+    - [HTTPS](#https)
 
   - [Lancement d'une instance](#lancement-dune-instance)
 
@@ -29,22 +30,16 @@
 
       - [Description:](#description)
       - [URI:](#uri)
-
-        - [Paramètres](#paramtres)
-
+      - [Paramètres](#paramtres)
       - [Methode:](#methode)
-
       - [Retour:](#retour)
 
     - [/put](#put)
 
       - [Description:](#description)
       - [URI:](#uri)
-
-        - [Paramètres:](#paramtres)
-
+      - [Paramètres:](#paramtres)
       - [Methode:](#methode)
-
       - [Retour:](#retour)
 
     - [/info](#info)
@@ -58,44 +53,32 @@
 
       - [Description:](#description)
       - [URI:](#uri)
-
       - [Paramètres:](#paramtres)
-
       - [Methode:](#methode)
-
       - [Retour:](#retour)
 
     - [/rm](#rm)
 
       - [Description:](#description)
       - [URI:](#uri)
-
       - [Paramètres:](#paramtres)
-
       - [Methode:](#methode)
-
       - [Retour:](#retour)
 
     - [/mv](#mv)
 
       - [Description:](#description)
       - [URI:](#uri)
-
       - [Paramètres:](#paramtres)
-
       - [Methode:](#methode)
-
       - [Retour:](#retour)
 
     - [/share](#share)
 
       - [Description:](#description)
       - [URI:](#uri)
-
       - [Paramètres:](#paramtres)
-
       - [Methode:](#methode)
-
       - [Retour:](#retour)
 
     - [/tree](#tree)
@@ -103,9 +86,7 @@
       - [Description:](#description)
       - [URI:](#uri)
       - [Methode:](#methode)
-
-        - [Paramètres:](#paramtres)
-
+      - [Paramètres:](#paramtres)
       - [Retour:](#retour)
 
     - [/webHookDropbox](#webhookdropbox)
@@ -113,41 +94,43 @@
       - [Description:](#description)
       - [URI:](#uri)
       - [Methode:](#methode)
-
-        - [Paramètres:](#paramtres)
-
+      - [Paramètres:](#paramtres)
       - [Retour:](#retour)
 
-  - [Encrypt all the things!](#encrypt-all-the-things)
-
-    - [/encrypt](#encrypt)
+    - [/webHookDrive](#webhookdrive)
 
       - [Description:](#description)
       - [URI:](#uri)
       - [Methode:](#methode)
-
-        - [Paramètres:](#paramtres)
-
+      - [Paramètres:](#paramtres)
       - [Retour:](#retour)
 
-    - [/decrypt](#decrypt)
+- [Encrypt all the things!](#encrypt-all-the-things)
 
-      - [Description:](#description)
-      - [URI:](#uri)
-      - [Methode:](#methode)
+  - [/encrypt](#encrypt)
 
-        - [Paramètres:](#paramtres)
+    - [Description:](#description)
+    - [URI:](#uri)
+    - [Methode:](#methode)
+    - [Paramètres:](#paramtres)
+    - [Retour:](#retour)
 
-      - [Retour:](#retour)
+  - [/decrypt](#decrypt)
 
-  - [Demos](#demos)
+    - [Description:](#description)
+    - [URI:](#uri)
+    - [Methode:](#methode)
+    - [Paramètres:](#paramtres)
+    - [Retour:](#retour)
 
-    - [Outils nécessaires](#outils-ncessaires)
-    - [Processus de tests](#processus-de-tests)
+- [Demos](#demos)
 
-  - [Note](#note)
+  - [Outils nécessaires](#outils-ncessaires)
+  - [Processus de tests](#processus-de-tests)
 
-  - [Licence](#licence)
+- [Note](#note)
+
+- [Licence](#licence)
 
 ## Structure
 
@@ -188,7 +171,8 @@ Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents
 - Déchiffrement de fichiers
 - Support de TravisCI
 - Support de mvn site
-- Commencement du support du webhook de dropbox
+- Commencement du support du webhook de dropbox et de drive
+- Début d'une configuration de serveur
 
 ## TODOList
 
@@ -196,6 +180,7 @@ Pour ce service, les outils _Jersey_, _Apache commonsIO_, _Apache httpcomponents
 - Ajout d'un service _Framadrive (Owncloud)_
 - Gestion des versions de fichiers
 - Webhooks
+- finir la configuration du serveur pour avoir les webhook
 
 ## Configuration d'une instance
 
@@ -261,6 +246,12 @@ you may answer the next question with yes.
 
 Use this key anyway? (y/N)
 ```
+
+### HTTPS
+
+Pour obtenir un projet fonctionnel, vous devez avoir un serveur accessible de l'extérieur (vous pouvez nater les ports de votre box vers votre machine) en **HTTPS**.<br>
+Dans le cadre de ce projet, nous n'avons pas eu le temps de reconfigurer un serveur pour faire tourner notre projet (ce qui demandait de remodifier toutes les URIs rajoutées côté dropbox et google drive, exporter les clés, générer un certificat de sécurité via _let's encrypt_, etc.)<br>
+Je vous reccommande donc de générer des certificats via _[let's encrypt](http://letsencrypt.org/)_ qui possède une communauté active. Vos certificats seront valables pour 3 mois. Veillez à changer les paramètres par défaut. Des sites comme [ssllabs](https://www.ssllabs.com/ssltest/analyze.html) peuvent vous faire une idée de la solidité de votre configuration.
 
 ## Lancement d'une instance
 
@@ -1163,6 +1154,28 @@ Le contenu du body pour une requête POST est considérée comme la notification
 #### Retour:
 
 Pour le moment rien. À terme, il faut mettre en place une websocket pour l'envoi des données. Si la signature est correcte on retourne les informations modifiées côté dropbox et {"err":"Incorrect key received"} si la signature n'est pas correcte.
+
+### /webHookDrive
+
+#### Description:
+
+Reçoit en direct les notifications de drive. **NOTE**: Cette url n'est pas utilisé par le client. C'est ce qui sert pour la réception. La partie serveur qui renvoie les notifications via websocket au client n'a **pas** été développée.
+
+#### URI:
+
+`http://localhost:8080/kiwishare/webHookDrive`
+
+#### Paramètres:
+
+Pour la méthode **GET** : _/googlecc7c08c6e0e9b76c.html_, afin de retourner et valider le souhait de s'inscrive. Cette méthode réalise un **POST** sur <https://www.googleapis.com/drive/v2/changes/watch> afin de s'inscrire aux évènements. Pour la méthode **POST** : Un header X-Goog-Resource-URI pour retourner l'adresse où a lieu les changements et le corps de la requête contient la notification. **challenge** = Le challenge à retourner pour accepter les notification.<br>
+
+#### Methode:
+
+**GET** & **POST**
+
+#### Retour:
+
+Pour le moment rien. À terme, il faut mettre en place une websocket pour l'envoi des données. Dans tous les cas, nous n'avons pas eu le temps de configurer un serveur (clone du repos, création des fichiers de configuration, modification des urls de callback/webhook pour drive et dropbox, génération d'une clé pour le chiffrement, génération des certificats de sécurité (avec let's encrypt)...) et son certificat de sécurité afin de pouvoir réaliser un **POST** sur /watch. En effet, le webhook callback doit obligatoirement être accessible en https.
 
 ## Encrypt all the things!
 

@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -27,8 +28,8 @@ public class KiwiShare implements IKiwiShare {
   private KiwiShareGoogleDrive _drive = null;
 
   /**
-   * Init services.
-   **/
+  * Init services.
+  **/
   public KiwiShare() {
     _dropbox = KiwiShareDropbox.getInstance();
     _drive = KiwiShareGoogleDrive.getInstance();
@@ -52,44 +53,47 @@ public class KiwiShare implements IKiwiShare {
     .entity(result.toString()).build();
   }
 
+  //TODO move dropbox and drive methods to their classes.
+  //here... it's ugly.
+
   @GET
   @Path("/callbackDropbox")
   @Override
   public Response authentificateDropbox(@QueryParam("code") final String code,
-                                      @QueryParam("error") final String error) {
+  @QueryParam("error") final String error) {
     return Response.status(KiwiUtils.getOkStatus())
-           .entity(_dropbox.authentificate(code, error).toString()).build();
+    .entity(_dropbox.authentificate(code, error).toString()).build();
   }
 
   @GET
   @Path("/webHookDropbox")
   /**
-   * Test for weebhook from dropbox.
-   * Get challenge.
-   * @return the challenge
-   **/
+  * Test for weebhook from dropbox.
+  * Get challenge.
+  * @return the challenge
+  **/
   public Response getWebHookDropbox(
   @QueryParam("challenge") final String challenge) {
     return Response.status(KiwiUtils.getOkStatus())
-          .entity(challenge).build();
+    .entity(challenge).build();
   }
 
   @POST
   @Path("/webHookDropbox")
   /**
-   * Test for weebhook from dropbox.
-   * Get notification and verify the key.
-   * @param body the notification
-   * @param key the HmacSHA256 encoding of the body with the secret key from API
-   * @return the notification
-   **/
+  * Test for weebhook from dropbox.
+  * Get notification and verify the key.
+  * @param body the notification
+  * @param key the HmacSHA256 encoding of the body with the secret key from API
+  * @return the notification
+  **/
   public Response webHookDropbox(String body,
-         @HeaderParam("X-Dropbox-Signature") final String key) {
+  @HeaderParam("X-Dropbox-Signature") final String key) {
     if(key == null) {
       //TODO remove println... Need a websocket
       System.out.println("Incorrect key received... abort");
       return Response.status(KiwiUtils.getOkStatus())
-           .entity("{\"err\":\"Incorrect key received\"}").build();
+      .entity("{\"err\":\"Incorrect key received\"}").build();
     }
     boolean correctKey = key.equals(KiwiUtils.HmacSHA256(
     KiwiShareDropbox.getInstance().getSecret(),
@@ -99,22 +103,65 @@ public class KiwiShare implements IKiwiShare {
       //TODO remove println... Need a websocket
       System.out.println("Incorrect key received... abort");
       return Response.status(KiwiUtils.getOkStatus())
-           .entity("{\"err\":\"Incorrect key received\"}").build();
+      .entity("{\"err\":\"Incorrect key received\"}").build();
     }
     //TODO Synchronize & Send to client websocket
     System.out.println(body);
     return Response.status(KiwiUtils.getOkStatus())
-           .entity(body).build();
+    .entity(body).build();
   }
-
 
   @GET
   @Path("/callbackDrive")
   @Override
   public Response authentificateDrive(@QueryParam("code") final String code,
-                                      @QueryParam("error") final String error) {
+  @QueryParam("error") final String error) {
     return Response.status(KiwiUtils.getOkStatus())
-          .entity(_drive.authentificate(code, error).toString()).build();
+    .entity(_drive.authentificate(code, error).toString()).build();
+  }
+
+  @GET
+  @Path("/webHookDrive/googlecc7c08c6e0e9b76c.html")
+  /**
+  * Test for weebhook from google drive.
+  * @return the file to confirm
+  **/
+  public Response getWebHookDrive() {
+    JSONObject driveReqObj = new JSONObject();
+    driveReqObj.put("id", UUID.randomUUID().toString());
+    driveReqObj.put("type", "web_hook");
+    driveReqObj.put("address",
+    "http://90.32.85.187:8080/kiwishare/webHookDrive");
+    try {
+      KiwiUtils.post("https://www.googleapis.com/drive/v2/changes/watch?"
+      + "access_token=" + KiwiShareGoogleDrive.getInstance().getToken(),
+      driveReqObj); //To suscribe to changes
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    return Response.status(KiwiUtils.getOkStatus())
+    .entity(KiwiUtils.readFile("googlecc7c08c6e0e9b76c.html")).build();
+  }
+
+  @POST
+  @Path("/webHookDrive")
+  /**
+  * Test for weebhook from drive.
+  * @param body the notification
+  * @param url the url for changes
+  * @return the notification
+  **/
+  public Response webHookDrive(String body,
+  @HeaderParam("X-Goog-Resource-URI") final String url) {
+    System.out.println("roger drive");
+    if (url != null) {
+      System.out.println(body);
+    }
+    if (body != null) {
+      System.out.println(body);
+    }
+    return Response.status(KiwiUtils.getOkStatus())
+    .entity(body).build();
   }
 
   //TODO drive: https://developers.google.com/drive/v3/web/push#making-watch-requests
@@ -127,7 +174,7 @@ public class KiwiShare implements IKiwiShare {
     result.put("dropbox", _dropbox.getFileInfo(file));
     result.put("drive", _drive.getFileInfo(file));
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-           .build();
+    .build();
   }
 
   @POST
@@ -135,7 +182,7 @@ public class KiwiShare implements IKiwiShare {
   @Override
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   public Response sendFile(@FormDataParam("file") final InputStream file,
-                           @QueryParam("path") final String destination) {
+  @QueryParam("path") final String destination) {
     JSONObject result = new JSONObject();
     try {
       //Clone InputStream (if not, we can't send to multiples services)
@@ -148,7 +195,7 @@ public class KiwiShare implements IKiwiShare {
       result.put("err", e.getMessage());
     }
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-           .build();
+    .build();
   }
 
 
@@ -160,7 +207,7 @@ public class KiwiShare implements IKiwiShare {
     result.put("dropbox", _dropbox.getSpaceInfo());
     result.put("drive", _drive.getSpaceInfo());
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-           .build();
+    .build();
   }
 
   @GET
@@ -171,7 +218,7 @@ public class KiwiShare implements IKiwiShare {
     result.put("dropbox", _dropbox.mkdir(folder));
     result.put("drive", _drive.mkdir(folder));
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-          .build();
+    .build();
   }
 
   @GET
@@ -182,19 +229,19 @@ public class KiwiShare implements IKiwiShare {
     result.put("dropbox", _dropbox.removeFile(file));
     result.put("drive", _drive.removeFile(file));
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-           .build();
+    .build();
   }
 
   @GET
   @Path("/mv")
   @Override
   public Response moveFile(@QueryParam("from") final String from,
-                           @QueryParam("to") final String to) {
+  @QueryParam("to") final String to) {
     JSONObject result = new JSONObject();
     result.put("dropbox", _dropbox.moveFile(from, to));
     result.put("drive", _drive.moveFile(from, to));
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-          .build();
+    .build();
   }
 
   @GET
@@ -205,7 +252,7 @@ public class KiwiShare implements IKiwiShare {
     result.put("dropbox", _dropbox.shareFile(file));
     result.put("drive", _drive.shareFile(file));
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-           .build();
+    .build();
   }
 
 
@@ -235,6 +282,6 @@ public class KiwiShare implements IKiwiShare {
       result.put("drive", temp);
     }
     return Response.status(KiwiUtils.getOkStatus()).entity(result.toString())
-           .build();
+    .build();
   }
 }
