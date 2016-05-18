@@ -29,16 +29,22 @@
 
       - [Description:](#description)
       - [URI:](#uri)
-      - [Paramètres](#paramtres)
+
+        - [Paramètres](#paramtres)
+
       - [Methode:](#methode)
+
       - [Retour:](#retour)
 
     - [/put](#put)
 
       - [Description:](#description)
       - [URI:](#uri)
-      - [Paramètres:](#paramtres)
+
+        - [Paramètres:](#paramtres)
+
       - [Methode:](#methode)
+
       - [Retour:](#retour)
 
     - [/info](#info)
@@ -53,9 +59,10 @@
       - [Description:](#description)
       - [URI:](#uri)
 
-    - [Paramètres:](#paramtres)
+      - [Paramètres:](#paramtres)
 
       - [Methode:](#methode)
+
       - [Retour:](#retour)
 
     - [/rm](#rm)
@@ -63,9 +70,10 @@
       - [Description:](#description)
       - [URI:](#uri)
 
-    - [Paramètres:](#paramtres)
+      - [Paramètres:](#paramtres)
 
       - [Methode:](#methode)
+
       - [Retour:](#retour)
 
     - [/mv](#mv)
@@ -73,9 +81,10 @@
       - [Description:](#description)
       - [URI:](#uri)
 
-    - [Paramètres:](#paramtres)
+      - [Paramètres:](#paramtres)
 
       - [Methode:](#methode)
+
       - [Retour:](#retour)
 
     - [/share](#share)
@@ -83,9 +92,10 @@
       - [Description:](#description)
       - [URI:](#uri)
 
-    - [Paramètres:](#paramtres)
+      - [Paramètres:](#paramtres)
 
       - [Methode:](#methode)
+
       - [Retour:](#retour)
 
     - [/tree](#tree)
@@ -93,7 +103,9 @@
       - [Description:](#description)
       - [URI:](#uri)
       - [Methode:](#methode)
-      - [Paramètres:](#paramtres)
+
+        - [Paramètres:](#paramtres)
+
       - [Retour:](#retour)
 
     - [/webHookDropbox](#webhookdropbox)
@@ -101,7 +113,9 @@
       - [Description:](#description)
       - [URI:](#uri)
       - [Methode:](#methode)
-      - [Paramètres:](#paramtres)
+
+        - [Paramètres:](#paramtres)
+
       - [Retour:](#retour)
 
   - [Encrypt all the things!](#encrypt-all-the-things)
@@ -111,7 +125,9 @@
       - [Description:](#description)
       - [URI:](#uri)
       - [Methode:](#methode)
-      - [Paramètres:](#paramtres)
+
+        - [Paramètres:](#paramtres)
+
       - [Retour:](#retour)
 
     - [/decrypt](#decrypt)
@@ -119,7 +135,9 @@
       - [Description:](#description)
       - [URI:](#uri)
       - [Methode:](#methode)
-      - [Paramètres:](#paramtres)
+
+        - [Paramètres:](#paramtres)
+
       - [Retour:](#retour)
 
   - [Demos](#demos)
@@ -234,6 +252,16 @@ default-recipient some-user-id
 default-recipient-self
 ```
 
+De plus, n'oubliez pas de signer votre clé. Sinon, le serveur pourra se bloquer avec le message :
+
+```
+It is NOT certain that the key belongs to the person named
+in the user ID.  If you *really* know what you are doing,
+you may answer the next question with yes.
+
+Use this key anyway? (y/N)
+```
+
 ## Lancement d'une instance
 
 Voici les commandes pour lancer le serveur :
@@ -285,7 +313,7 @@ Récupère les informations sur un fichier.
 
 `http://localhost:8080/kiwishare/get`
 
-#### Paramètres
+##### Paramètres
 
 **path** = Le chemin du fichier à récupérer.<br>
 _Exemple_ : `http://localhost:8080/kiwishare/get?path=generate/test.jpg`
@@ -391,7 +419,7 @@ Envoie un fichier
 
 `http://localhost:8080/kiwishare/put`
 
-#### Paramètres:
+##### Paramètres:
 
 **path**= le chemin de destination.<br>
 dans les headers : **file** le contenu du fichier.<br>
@@ -764,7 +792,7 @@ Créé un dossier
 
 `http://localhost:8080/kiwishare/mkdir`
 
-### Paramètres:
+#### Paramètres:
 
 **path** = le répetoire à générer.<br>
 _Exemple_ : `localhost:8080/kiwishare/mkdir?path=DIR`
@@ -868,7 +896,7 @@ Supprime un fichier
 
 `http://localhost:8080/kiwishare/rm`
 
-### Paramètres:
+#### Paramètres:
 
 **path** = le répetoire à générer.<br>
 _Exemple_ : `localhost:8080/kiwishare/rm?path=DIR`
@@ -914,7 +942,7 @@ Déplace un fichier.
 
 `http://localhost:8080/kiwishare/mv`
 
-### Paramètres:
+#### Paramètres:
 
 **from** = Le fichier à déplacer.<br>
 **to** = La nouvelle destination.<br>
@@ -1029,7 +1057,7 @@ Obtient l'url de partage des différents services.
 
 `http://localhost:8080/kiwishare/share`
 
-### Paramètres:
+#### Paramètres:
 
 **path** = Le fichier à partager.<br>
 _Exemple_ : `localhost:8080/kiwishare/share?path=PATH`
@@ -1069,7 +1097,7 @@ Obtient l'arborescence des fichiers de tous les services.
 
 **GET**
 
-#### Paramètres:
+##### Paramètres:
 
 **merge** (optionnel) Si on doit merger les résultats (1, true). Exemple `http://localhost:8080/kiwishare/tree?merge=true`.
 
@@ -1123,7 +1151,7 @@ Reçoit en direct les notifications de dropbox. **NOTE**: Cette url n'est pas ut
 
 `http://localhost:8080/kiwishare/webHookDropbox`
 
-### Paramètres:
+#### Paramètres:
 
 **challenge** = Le challenge à retourner pour accepter les notification.<br>
 Le contenu du body pour une requête POST est considérée comme la notification. Le header **X-Dropbox-Signature** contient le HmacSHA256 de la requête signée par la clé de Kiwishare.
@@ -1152,7 +1180,7 @@ Chiffre le contenu d'un fichier.
 
 **POST**
 
-#### Paramètres:
+##### Paramètres:
 
 **file** en paramètre de la requête. Contient le contenu du fichier.<br>
 _Exemple_ : `curl -F "file=@/home/AmarOk/main.cpp" http://localhost:8080/kiwiencrypt/encrypt?name=temp`
@@ -1211,7 +1239,7 @@ Déchiffre le contenu d'un fichier.
 
 **POST**
 
-#### Paramètres:
+##### Paramètres:
 
 **file** en paramètre de la requête. Contient le contenu du fichier.<br>
 _Exemple_ : `curl -F "file=@/home/AmarOk/main.gpg" http://localhost:8080/kiwiencrypt/decrypt?name=temp`
