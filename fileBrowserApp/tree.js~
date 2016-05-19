@@ -1,7 +1,7 @@
 var KiwiShareClient = angular.module('KiwiShareClient', ['ui.tree'])
 
 KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
-  $scope.list = [
+  $scope.data = [
   {
     "id": 1,
     "title": "node1",
