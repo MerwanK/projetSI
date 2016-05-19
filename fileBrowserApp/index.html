@@ -5,27 +5,25 @@
 	    	<title>KiwiShare Client</title>
 		<link rel="icon" type="image/png" href="favico.ico" />
 	    	<link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css"/>
-    		<title>KiwiShareClient</title>
-    		<link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css"/>
+	    	<link rel="stylesheet" href="css/tree.css"/>
   	</head>
   <body>
 	<h1>Application KiwiShare</h1>
   	<div ng-app="KiwiShareClient" ng-controller="TreeController">
-  		{{greeting}}
  		<div ui-tree>
-  		<ol ui-tree-nodes="" ng-model="list">
-    		<li ng-repeat="item in list" ui-tree-node>
-      		<div ui-tree-handle>
-        		{{item.title}}
-      		</div>
-      	<ol ui-tree-nodes="" ng-model="item.items">
-        	<li ng-repeat="subItem in item.items" ui-tree-node>
-          	<div ui-tree-handle>
-            	{{subItem.title}}
-          	</div>
-        	</li>
-      	</ol>
-    		</li>
+  		<ol ui-tree-nodes ng-model="list">
+    			<li ng-repeat="node in list" ui-tree-node>
+      				<div ui-tree-handle>
+        				{{node.title}}
+      				</div>
+      				<ol ui-tree-nodes="" ng-model="node.nodes">
+        				<li ng-repeat="subNode in node.nodes" ui-tree-node>
+          					<div ui-tree-handle>
+            						{{subNode.title}}
+          					</div>
+        				</li>
+      				</ol>
+    			</li>
   		</ol>
 		</div>
 	</div>
