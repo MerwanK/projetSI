@@ -46,6 +46,11 @@ KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
         window.open("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&client_id=462659653340-ckldp4re47tg7slfj8q3tsvc6ur59657.apps.googleusercontent.com&redirect_uri=http://localhost:8080/kiwishare/callbackDrive")
       }
 
+      $scope.shareFiles = function(){
+        var partage = document.getElementById('share').value;
+        window.open("http://localhost:8080/kiwishare/share?path="+partage)
+      }
+
       $scope.data = [
       {
         "id": 1,

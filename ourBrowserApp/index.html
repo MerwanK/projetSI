@@ -38,6 +38,20 @@
       </form>
       <button ng-click="deleteFiles()">Supprimer un dossier ou un fichier</button>
     </td>
+    <td>
+      <form>
+      Obtenir l'url de partage d'un fichier :<br>
+      <input type="text" name="createfolder" id="share"/><br>
+      </form>
+      <button ng-click="shareFiles()">Accèder à la page du fichier</button>
+    </td>
+    <td>
+      <form action ="http://localhost:8080/kiwishare/put?path=main.cpp" method="post">
+      Envoyer un fichier de votre disque dur :<br>
+      <input type="text" name="createfolder" id="put"/><br>
+      <input type ="submit" value="Subimt">
+      </form>
+    </td
   </tr>
 </table>
 
