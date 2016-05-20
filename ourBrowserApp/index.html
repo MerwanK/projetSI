@@ -13,7 +13,7 @@
   
   <h1> KiwiShare Client </h1>
   <p style="float:left;"> Autoriser l'application à accéder à Google Drive et DropBox : </p>
-  <a href="https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&client_id=462659653340-  ckldp4re47tg7slfj8q3tsvc6ur59657.apps.googleusercontent.com&redirect_uri=http://localhost:8080/kiwishare/callbackDrive">
+  <a href="https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&client_id=462659653340-ckldp4re47tg7slfj8q3tsvc6ur59657.apps.googleusercontent.com&redirect_uri=http://localhost:8080/kiwishare/callbackDrive">
     <img src="images/logo-drive.png" alt="GDrive Logo" style="width:50px;height:50px;border:2px solid #021a40;margin-left:5px">
   </a>
   <a href="https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=n3ukjy5rxfu5dnc&redirect_uri=http://localhost:8080/kiwishare/callbackDropbox">
@@ -22,11 +22,39 @@
 
 <div ng-controller="TreeController">
 
-<p>
-    <button ng-click="expandAll()">Expand all</button>
-    <button ng-click="collapseAll()">Collapse all</button>
-    <button ng-click="createFolder()">Créer un dossier</button>
-</p>
+<table>
+  <tr>
+    <td>
+    <form>
+      Entrez un nom de dossier :<br>
+      <input type="text" name="createfolder" id="create"/><br>
+    </form>  
+      <button ng-click="createFolder()">Créer un dossier</button>
+    </td>
+    <td>
+      <form>
+      Supprimer un fichier/dossier :<br>
+      <input type="text" name="createfolder" id="delete"/><br>
+      </form>
+      <button ng-click="deleteFiles()">Supprimer un dossier ou un fichier</button>
+    </td>
+    <td>
+      <form>
+      Obtenir l'url de partage d'un fichier :<br>
+      <input type="text" name="createfolder" id="share"/><br>
+      </form>
+      <button ng-click="shareFiles()">Accèder à la page du fichier</button>
+    </td>
+    <td>
+      <form action ="http://localhost:8080/kiwishare/put?path=main.cpp" method="post">
+      Envoyer un fichier de votre disque dur :<br>
+      <input type="text" name="createfolder" id="put"/><br>
+      <input type ="submit" value="Subimt">
+      </form>
+    </td
+  </tr>
+</table>
+
 
 <div ui-tree>
     <ol ui-tree-nodes="" ng-model="data">
