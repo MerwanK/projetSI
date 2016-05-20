@@ -1,9 +1,9 @@
-(function(){
-  'use strict';
-
 var KiwiShareClient = angular.module('KiwiShareClient', ['ui.tree'])
 
 KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
+    $scope.toto = "toto";
+    console.log("toto: " + $scope.toto);
+
       $scope.remove = function (scope) {
         scope.remove();
       };
@@ -33,7 +33,11 @@ KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
       $scope.expandAll = function () {
         $scope.$broadcast('angular-ui-tree:expand-all');
       };
-  
+
+      $scope.createFolder = function (){
+        console.log("ça marche ou pas?");
+        window.open("localhost:8080/kiwishare/mkdir?path=test");
+      }
 
       $scope.data = [
       {
@@ -89,4 +93,3 @@ KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
 ]; 
 }]);
 
-}());

@@ -8,9 +8,9 @@
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/tree.css"/> 
 </head>
-<body>
+<body ng-app = "KiwiShareClient">
+  
   <h1> KiwiShare Client </h1>
-
   <p style="float:left;"> Autoriser l'application à accéder à Google Drive et DropBox : </p>
   <a href="https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&client_id=462659653340-  ckldp4re47tg7slfj8q3tsvc6ur59657.apps.googleusercontent.com&redirect_uri=http://localhost:8080/kiwishare/callbackDrive">
     <img src="images/logo-drive.png" alt="GDrive Logo" style="width:50px;height:50px;border:2px solid #021a40;margin-left:5px">
@@ -19,8 +19,26 @@
     <img src="images/logo-dropbox.png" alt="Dropbox Logo" style="width:50px;height:50px;border:2px solid #021a40;">
   </a>
 
+<div ng-controller="TreeController">
 
-  <!-- Nested node template -->
+<p>
+    <button ng-click="expandAll()">Expand all</button>
+    <button ng-click="collapseAll()">Collapse all</button>
+    <button ng-click="createFolder()">Créer un dossier</button>
+</p>
+
+<div ui-tree>
+    <ol ui-tree-nodes="" ng-model="data">
+      <li ng-repeat="node in data" ui-tree-node ng-include="'nodes_renderer.html'"></li>
+    </ol>
+</div>
+
+</div>
+
+  <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+  <script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+  <script type="text/javascript" src="javascript/tree.js"></script>
+   <!-- Nested node template -->
   <script type="text/ng-template" id="nodes_renderer.html">
   <div ui-tree-handle class="tree-node tree-node-content">
   <a class="btn btn-success btn-xs" ng-if="node.nodes && node.nodes.length > 0" data-nodrag ng-click="toggle(this)"><span
@@ -40,22 +58,5 @@
   </li>
   </ol>
   </script>
-<p>
-    <button ng-click="expandAll()">Expand all</button>
-    <button ng-click="collapseAll()">Collapse all</button>
-  </div>
-</div>
-</p>
-<div ui-tree>
-  <div ng-controller="TreeController">
-    <ol ui-tree-nodes="" ng-model="data">
-      <li ng-repeat="node in data" ui-tree-node ng-include="'nodes_renderer.html'"></li>
-    </ol>
-  </div>
-</div>
-
-  <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
-  <script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
-  <script type="text/javascript" src="javascript/tree.js"></script>
   </body>
 </html>
