@@ -12,23 +12,25 @@ function getFiles(){
 	xhr.open('GET', "http://localhost:8080/kiwishare/tree", true);
 	xhr.send();
 	xhr.addEventListener("readystatechange", processRequest, false);
-}
 
+	/*
+	 * Handler de la réception de la réponse
+	 */
 
-/*
- * Handler de la réception de la réponse
- */
-
-function processRequest(e) {
-	if (xhr.readyState == 4) && xhr.status == 200) {
-		var resp = JSON.parse(xhr.responseText);
-		rawData = resp.files;
-		for(var currentPath in rawData){
-			var parts = currentPath.path.split("/");
-			constructComponent(parts,jsonData);
+	function processRequest(e) {
+		if (xhr.readyState == 4) && xhr.status == 200) {
+			var resp = JSON.parse(xhr.responseText);
+			rawData = resp.files;
+			for(var currentPath in rawData){
+				var parts = currentPath.path.split("/");
+				constructComponent(parts,jsonData);
+			}
 		}
 	}
 }
+
+
+
 
 /*
  * Construction de l'ID
@@ -50,15 +52,25 @@ function constructId(pathParts){
  */
 
 function searchExistingPaths(path,jsData,n){
-	for(var data in jsData){
-		if(data.title = path[n]){
-			var ret = searchExistingPath(path,data.nodes,n+1);
-			if(ret== null){
-				return path.splice(0,n);
-			}
-		}
+	var tempData = jsData;
+	for(var i = 0; i < path.length; i++){
+		var res = comparePath(path,tempData,i)
+		if(res != -1)
+			tempData = jsData[res].nodes;
+		else
+			return path.splice(0,i);
 	}
-	return null;
+	return path.splice(0,i);
+}
+
+function comparePath(path,jsData,n){
+	var tempData;
+	for(var i = 0; i < data.length; i++){
+		tempData = jsData[i];
+		if(tempData.title == path[n])
+			return i;
+	}
+	return -1;
 }
 
 /*
@@ -70,22 +82,22 @@ function getLastNodeOfPath(path,jsData,n){
 	for(var data in jsData){
 		if(data.title = path[n]){
 			var ret = getLastNodeOfPath(path,data.nodes,n+1);
-			if(ret== {}){
+			if(ret== null){
 				return data.nodes;
 			}
 		}
 	}
-	return {};
+	return null;
 }
 
 /*
  * Ajoute l'arbre à jsonData
  */
 
-function constructComponent(pathParts,jsonData){
+function constructComponent(pathParts,jsData){
 	var index = constructId(pathParts);
-	var lastNode = getLastNodeOfPath(pathParts,jsonData,0);
-	var pathToBuild = searchExistingPath(pathParts, jsonData, 0);
+	var lastNode = getLastNodeOfPath(pathParts,jsData,0);
+	var pathToBuild = searchExistingPath(pathParts, jsData, 0);
 	var tree = constructTreeToAdd(pathToBuild):
 	lastNode.nodes.push(tree);
 }
@@ -111,6 +123,16 @@ function constructTreeToAdd(path){
 
 	return finalTree;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
