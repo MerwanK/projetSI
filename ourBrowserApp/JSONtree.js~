@@ -26,7 +26,7 @@ function getFiles(){
 			console.log(xhr.responseText);
 			var resp = JSON.parse(xhr.responseText);
 			rawData = resp.files;
-			for(var currentPath in rawData){
+			for(var currentPath in resp){
 				var parts = currentPath.split("/");
 				buildNodes(parts);
 			}
@@ -136,5 +136,13 @@ function constructTreeToAdd(path,completePath){
 	return finalTree;
 }
 
+
+function buildNodes(path){
+	var sommet = jsonData;
+	var temp = sommet;
+	for(eachP in path){
+		jsonData.push(eachP)
+	}
+}
 
 
