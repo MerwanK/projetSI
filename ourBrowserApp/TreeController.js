@@ -1,6 +1,6 @@
 var KiwiShareClient = angular.module('KiwiShareClient', ['ui.tree'])
 
-KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
+KiwiShareClient.controller('TreeController', ['$scope','$http', function($scope,$http) {
 
       $scope.remove = function (scope) {
         scope.remove();
@@ -46,7 +46,29 @@ KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
         window.open("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&client_id=462659653340-ckldp4re47tg7slfj8q3tsvc6ur59657.apps.googleusercontent.com&redirect_uri=http://localhost:8080/kiwishare/callbackDrive")
       }
 
-      $scope.shareFiles = function(){
+      $scope.shareFilesDrive = function(){
+        var partage = document.getElementById('share').value;
+
+//de la merde
+       // var res = ""+partage;
+
+        $http({
+        method: 'GET',
+        url: 'http://localhost:8080/kiwishare/share?path=logo.png'
+       }).then(function successCallback(response) {
+    // this callback will be called asynchronously
+    // when the response is available
+  }, function errorCallback(response) {
+    // called asynchronously if an error occurs
+    // or server returns response with an error status.
+  });
+
+        var re = new RegExp("/(https:\/\/db.tt\/)\w*/g");
+        var resFinal = re.exec(response);
+        window.open(resFinal);
+      }
+
+      $scope.shareFilesDropbox = function(){
         var partage = document.getElementById('share').value;
         window.open("http://localhost:8080/kiwishare/share?path="+partage)
       }

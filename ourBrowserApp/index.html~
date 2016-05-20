@@ -43,15 +43,17 @@
       Obtenir l'url de partage d'un fichier :<br>
       <input type="text" name="createfolder" id="share"/><br>
       </form>
-      <button ng-click="shareFiles()">Accèder à la page du fichier</button>
+      <button ng-click="shareFilesDrive()">Fichier sur Drive</button>
+      <button ng-click="shareFilesDropbox()">Fichier sur Dropbox</button>
     </td>
     <td>
-      <form action ="http://localhost:8080/kiwishare/put?path=main.cpp" method="post">
-      Envoyer un fichier de votre disque dur :<br>
-      <input type="text" name="createfolder" id="put"/><br>
-      <input type ="submit" value="Subimt">
-      </form>
-    </td
+      <form action="http://localhost:8080/kiwishare/put" method="post">
+      Envoyer un fichier :<br>
+    <input type="file" name="file"/>
+    <input type="text" name="path"/>
+    <input type="submit" value="Submit">
+    </form>
+    </td>
   </tr>
 </table>
 
@@ -63,8 +65,7 @@
 </div>
 
 </div>
-<script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
-  <script type="text/javascript" src="javascript/tree.js"></script>
+
    <!-- Nested node template -->
   <script type="text/ng-template" id="nodes_renderer.html">
   <div ui-tree-handle class="tree-node tree-node-content">
