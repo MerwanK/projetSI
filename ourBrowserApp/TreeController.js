@@ -35,7 +35,7 @@ KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
       };
 
       $scope.createFolder = function (){
-        window.open("localhost:8080/kiwishare/mkdir?path=test");
+        window.open("http://localhost:8080/kiwishare/mkdir?path=test");
       }
 
       $scope.data = [
