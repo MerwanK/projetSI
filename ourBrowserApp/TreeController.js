@@ -1,8 +1,6 @@
 var KiwiShareClient = angular.module('KiwiShareClient', ['ui.tree'])
 
 KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
-    $scope.toto = "toto";
-    console.log("toto: " + $scope.toto);
 
       $scope.remove = function (scope) {
         scope.remove();
@@ -25,7 +23,7 @@ KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
           nodes: []
         });
       };
-
+/*
       $scope.collapseAll = function () {
         $scope.$broadcast('angular-ui-tree:collapse-all');
       };
@@ -33,9 +31,19 @@ KiwiShareClient.controller('TreeController', ['$scope', function($scope) {
       $scope.expandAll = function () {
         $scope.$broadcast('angular-ui-tree:expand-all');
       };
-
+*/
       $scope.createFolder = function (){
-        window.open("http://localhost:8080/kiwishare/mkdir?path=test");
+        var folder = document.getElementById('create').value;
+        window.open("http://localhost:8080/kiwishare/mkdir?path="+folder);
+      }
+
+       $scope.deleteFiles = function (){
+        var delet = document.getElementById('delete').value;
+        window.open("http://localhost:8080/kiwishare/rm?path="+delet);
+      }
+
+      $scope.driveAdresse = function(){
+        window.open("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&scope=https://www.googleapis.com/auth/drive&client_id=462659653340-ckldp4re47tg7slfj8q3tsvc6ur59657.apps.googleusercontent.com&redirect_uri=http://localhost:8080/kiwishare/callbackDrive")
       }
 
       $scope.data = [
