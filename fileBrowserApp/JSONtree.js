@@ -1,7 +1,6 @@
+var indexLevel = [1, 1, 1, 1, 1, 1, 1, 1];	//Niveau d'indexage pour la gestion des ID des nodes
 var rawData;					//Données brutes reçues par le backend
 var jsonData = [];				//Représentation de l'arbre en JSON
-var indexLevel = [1, 1, 1, 1, 1, 1, 1, 1];	//Niveau d'indexage pour la gestion des ID des nodes
-
 
 /*
  * Envoie de la requête pour la liste des fichiers
@@ -26,6 +25,7 @@ function getFiles(){
 				constructComponent(parts,jsonData);
 			}
 		}
+		return jsonData;
 	}
 }
 
@@ -95,10 +95,9 @@ function getLastNodeOfPath(path,jsData,n){
  */
 
 function constructComponent(pathParts,jsData){
-	var index = constructId(pathParts);
 	var lastNode = getLastNodeOfPath(pathParts,jsData,0);
 	var pathToBuild = searchExistingPath(pathParts, jsData, 0);
-	var tree = constructTreeToAdd(pathToBuild):
+	var tree = constructTreeToAdd(pathToBuild, pathParts):
 	lastNode.nodes.push(tree);
 }
 
@@ -106,10 +105,11 @@ function constructComponent(pathParts,jsData){
  * Génère l'ensemble de l'arbre qu'il faut attacher à la node de jsonData
  */
 
-function constructTreeToAdd(path){
+function constructTreeToAdd(path,completePath){
 	var nodeList = [];
 
 	for(var i = 0; i < path.length; i++){
+		var index = constructId(completePath.splice(completePath.length-1-i,i));
 		var currentNode = {id : index, title : path[path.length-1-i], nodes : []}
 		nodeList.push(currentNode);
 	}
